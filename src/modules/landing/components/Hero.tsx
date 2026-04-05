@@ -1,8 +1,8 @@
 import { Code2, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { SectionWrapper } from "@/components/ui/SectionWrapper";
 
 const codeExample = `// pull request review
 const review = await analyzeRepository({

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Container } from "@/components/ui/container";
+import { Container } from "@/components/ui/Container";
 
 const links = [
   { label: "Privacy Policy", href: "#privacy" },

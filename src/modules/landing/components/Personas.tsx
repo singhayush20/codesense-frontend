@@ -1,7 +1,7 @@
 import { CheckCircle2, User, Users2, Wand2 } from "lucide-react";
-import { Container } from "@/components/ui/container";
-import { Card } from "@/components/ui/card";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
+import { Container } from "@/components/ui/Container";
+import { Card } from "@/components/ui/Card";
+import { SectionWrapper } from "@/components/ui/SectionWrapper";
 
 const personas = [
   {

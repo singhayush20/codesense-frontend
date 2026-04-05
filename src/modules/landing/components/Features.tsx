@@ -1,7 +1,7 @@
 import { Box, Cpu, GitBranch, Shield } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { SectionWrapper } from "@/components/ui/SectionWrapper";
 
 const features = [
   {

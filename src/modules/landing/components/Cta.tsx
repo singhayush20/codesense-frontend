@@ -1,5 +1,5 @@
-import { Container } from "@/components/ui/container";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
+import { Container } from "@/components/ui/Container";
+import { SectionWrapper } from "@/components/ui/SectionWrapper";
 
 export default function Cta() {
   return (

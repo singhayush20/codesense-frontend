@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LoginCard } from "./LoginCard";
-import { AuthPageFooter } from "./AuthPageFooter";
+import { LoginCard } from "../components/LoginCard";
+import { AuthPageFooter } from "../components/AuthPageFooter";
 
 export function LoginPage() {
   const [activeAction, setActiveAction] = useState<"GitHub" | "Google" | null>(null);
