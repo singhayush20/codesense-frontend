@@ -36,12 +36,9 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link href="#signin" className="text-sm font-medium text-slate-300 transition hover:text-white">
+          <Link href="/login" className="text-sm font-medium text-slate-300 transition hover:text-white">
             Sign In
           </Link>
-          <Button variant="secondary" size="lg" className="rounded-full px-5">
-            Start Free
-          </Button>
         </div>
 
         <button
@@ -70,15 +67,12 @@ export default function Navbar() {
           </div>
           <div className="mt-4 flex flex-col gap-3">
             <Link
-              href="#signin"
+              href="/login"
               onClick={() => setOpen(false)}
               className="rounded-3xl border border-white/10 px-4 py-3 text-center text-sm font-medium text-slate-100 transition hover:bg-slate-800"
             >
               Sign In
             </Link>
-            <Button variant="secondary" size="lg" className="w-full rounded-full px-5">
-              Start Free
-            </Button>
           </div>
         </div>
       ) : null}

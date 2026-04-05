@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "@/styles/globals.css";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -17,10 +17,14 @@ export const viewport = {
   initialScale: 1,
 };
 
+import { Providers } from "./providers";
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full bg-[#0A0F1C] text-slate-100">{children}</body>
+      <body className="min-h-full bg-[#0A0F1C] text-slate-100">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
