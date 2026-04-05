@@ -1,13 +1,15 @@
-import Navbar from "@/components/features/landing/navbar";
-import Hero from "@/components/features/landing/hero";
-import Metrics from "@/components/features/landing/metrics";
-import Features from "@/components/features/landing/features";
-import Personas from "@/components/features/landing/personas";
-import Workflow from "@/components/features/landing/workflow";
-import CTA from "@/components/features/landing/cta";
-import Footer from "@/components/features/landing/footer";
+import {
+  Cta,
+  Features,
+  Footer,
+  Hero,
+  Metrics,
+  Navbar,
+  Personas,
+  Workflow,
+} from "@/modules/landing/components";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="bg-[#0A0F1C] text-slate-100">
       <Navbar />
@@ -16,7 +18,7 @@ export default function Home() {
       <Features />
       <Personas />
       <Workflow />
-      <CTA />
+      <Cta />
       <Footer />
     </main>
   );

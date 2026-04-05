@@ -1,6 +1,11 @@
 export const routes = {
-  home: '/',
-  login: '/login',
-  dashboard: '/dashboard',
-  // Add more routes
-};
+  public: {
+    home: "/",
+    login: "/login",
+  },
+  app: {
+    dashboard: "/dashboard",
+  },
+} as const;
+
+export type RoutePath = (typeof routes)[keyof typeof routes][keyof (typeof routes)[keyof typeof routes]];
