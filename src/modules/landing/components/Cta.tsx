@@ -1,7 +1,7 @@
 import { Container } from "@/components/ui/container";
 import { SectionWrapper } from "@/components/ui/section-wrapper";
 
-export default function CTA() {
+export default function Cta() {
   return (
     <SectionWrapper className="border-t border-white/10">
       <Container>
