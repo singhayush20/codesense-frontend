@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { LayoutDashboard, LogOut, UserCircle2 } from "lucide-react";
@@ -43,7 +43,7 @@ export function Sidebar({
       <div
         aria-hidden="true"
         className={cn(
-          "fixed inset-0 z-30 bg-slate-950/65 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+          "fixed inset-0 z-30 bg-[var(--color-overlay)] backdrop-blur-sm transition-opacity duration-300 lg:hidden",
           isSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={onCloseSidebar}
@@ -51,14 +51,14 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-slate-950/92 pt-20 shadow-[0_30px_80px_-45px_rgba(2,6,23,0.95)] backdrop-blur-xl transition-all duration-300",
+          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-border/70 bg-[var(--color-bg-secondary)] pt-20 shadow-[var(--shadow-surface)] backdrop-blur-xl transition-all duration-300",
           isSidebarOpen ? "translate-x-0 lg:w-72" : "-translate-x-full lg:w-24 lg:translate-x-0",
         )}
       >
         <div className="flex h-full flex-col px-3 py-6">
           <p
             className={cn(
-              "px-3 text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-500 transition-opacity duration-200",
+              "px-3 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground transition-opacity duration-200",
               !isSidebarOpen && "lg:opacity-0",
             )}
           >
@@ -83,15 +83,15 @@ export function Sidebar({
                   className={cn(
                     "group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200",
                     isActive
-                      ? "bg-sky-400/12 text-sky-200"
-                      : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-50 hover:translate-x-1",
+                      ? "border border-primary/15 bg-primary/10 text-foreground"
+                      : "text-muted-foreground hover:translate-x-1 hover:bg-muted hover:text-foreground",
                     !isSidebarOpen && "lg:justify-center lg:px-0",
                   )}
                 >
                   <Icon
                     className={cn(
                       "h-5 w-5 shrink-0 transition-colors duration-200",
-                      isActive ? "text-sky-300" : "text-slate-500 group-hover:text-slate-100",
+                      isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
                     )}
                   />
 
@@ -113,7 +113,7 @@ export function Sidebar({
               <p
                 role="alert"
                 className={cn(
-                  "px-3 text-xs text-red-200",
+                  "px-3 text-xs text-destructive",
                   !isSidebarOpen && "lg:hidden",
                 )}
               >
@@ -127,11 +127,11 @@ export function Sidebar({
               disabled={isLoggingOut}
               title="Logout"
               className={cn(
-                "group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-red-200 transition-all duration-200 hover:bg-red-500/10 hover:translate-x-1 disabled:cursor-wait disabled:opacity-70",
+                "group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-destructive transition-all duration-200 hover:translate-x-1 hover:bg-destructive/10 disabled:cursor-wait disabled:opacity-70",
                 !isSidebarOpen && "lg:justify-center lg:px-0",
               )}
             >
-              <LogOut className="h-5 w-5 shrink-0 text-red-300 transition-colors duration-200 group-hover:text-red-200" />
+              <LogOut className="h-5 w-5 shrink-0 text-destructive transition-colors duration-200" />
               <span
                 className={cn(
                   "truncate transition-[opacity,transform,width] duration-200",

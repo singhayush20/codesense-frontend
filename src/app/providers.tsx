@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/modules/auth/providers/AuthProvider";
+import { ThemeProvider } from "@/modules/theme/providers/ThemeProvider";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -9,8 +10,10 @@ interface ProvidersProps {
 
 export function Providers({ children, initialIsAuthenticated }: ProvidersProps) {
   return (
-    <AuthProvider initialIsAuthenticated={initialIsAuthenticated}>
-      {children}
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider initialIsAuthenticated={initialIsAuthenticated}>
+        {children}
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

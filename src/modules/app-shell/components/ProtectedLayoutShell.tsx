@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -99,7 +99,7 @@ export function ProtectedLayoutShell({ children }: ProtectedLayoutShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#09111f] text-slate-100">
+    <div className="min-h-screen bg-background text-foreground">
       <Header
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((current) => !current)}

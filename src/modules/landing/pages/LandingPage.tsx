@@ -1,4 +1,4 @@
-import {
+﻿import {
   Cta,
   Features,
   Footer,
@@ -11,7 +11,7 @@ import {
 
 export function LandingPage() {
   return (
-    <main className="bg-[#0A0F1C] text-slate-100">
+    <main className="bg-background text-foreground">
       <Navbar />
       <Hero />
       <Metrics />
