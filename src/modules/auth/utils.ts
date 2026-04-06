@@ -18,6 +18,10 @@ export function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
+export function isAuthenticatedValue(authToken?: string | null): boolean {
+  return Boolean(authToken);
+}
+
 export function buildGoogleRedirectUri(appUrl: string): string {
   return new URL(routes.auth.googleCallback, appUrl).toString();
 }

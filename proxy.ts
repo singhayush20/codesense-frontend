@@ -7,8 +7,10 @@ import { AUTH_TOKEN_COOKIE_NAME } from "./src/modules/auth/utils";
 export function proxy(request: NextRequest) {
   const authToken = request.cookies.get(AUTH_TOKEN_COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
+  const isProtectedRoute =
+    pathname.startsWith(routes.app.dashboard) || pathname.startsWith(routes.app.profile);
 
-  if (pathname.startsWith(routes.app.dashboard) && !authToken) {
+  if (isProtectedRoute && !authToken) {
     return NextResponse.redirect(new URL(routes.public.login, request.url));
   }
 
@@ -20,5 +22,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard/:path*"],
+  matcher: ["/login", "/dashboard/:path*", "/profile/:path*"],
 };

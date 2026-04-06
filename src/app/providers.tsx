@@ -1,6 +1,16 @@
-// Global providers for the app
-// Add theme provider, auth provider, query client, etc.
+"use client";
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+import { AuthProvider } from "@/modules/auth/providers/AuthProvider";
+
+interface ProvidersProps {
+  children: React.ReactNode;
+  initialIsAuthenticated: boolean;
+}
+
+export function Providers({ children, initialIsAuthenticated }: ProvidersProps) {
+  return (
+    <AuthProvider initialIsAuthenticated={initialIsAuthenticated}>
+      {children}
+    </AuthProvider>
+  );
 }
