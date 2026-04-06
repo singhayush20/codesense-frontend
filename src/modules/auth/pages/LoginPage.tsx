@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { routes } from "@/config/routes";
 import { LoginCard } from "../components/LoginCard";
 import { AuthPageFooter } from "../components/AuthPageFooter";
 
-export function LoginPage() {
+interface LoginPageProps {
+  oauthErrorMessage?: string | null;
+}
+
+export function LoginPage({ oauthErrorMessage = null }: LoginPageProps) {
   const [activeAction, setActiveAction] = useState<"GitHub" | "Google" | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -29,6 +34,19 @@ export function LoginPage() {
 
   const handleOAuthClick = (provider: "GitHub" | "Google") => {
     setActiveAction(provider);
+
+    if (provider === "Google") {
+      if (toastTimer.current) {
+        clearTimeout(toastTimer.current);
+      }
+
+      setToastMessage("Redirecting to Google...");
+      window.requestAnimationFrame(() => {
+        window.location.assign(routes.auth.googleStart);
+      });
+      return;
+    }
+
     showToast(`Mock ${provider} sign in initiated`);
     window.setTimeout(() => setActiveAction(null), 700);
   };
@@ -39,7 +57,12 @@ export function LoginPage() {
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:64px_64px] opacity-40" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-6">
-        <LoginCard activeAction={activeAction} toastMessage={toastMessage} onOAuthClick={handleOAuthClick} />
+        <LoginCard
+          activeAction={activeAction}
+          oauthErrorMessage={oauthErrorMessage}
+          toastMessage={toastMessage}
+          onOAuthClick={handleOAuthClick}
+        />
 
         <div className="flex w-full max-w-md items-center justify-between gap-4 rounded-3xl border border-white/10 bg-slate-950/70 px-5 py-3 text-xs text-slate-400 shadow-[0_16px_80px_-56px_rgba(0,0,0,0.8)] backdrop-blur-xl">
           <span className="font-medium text-slate-200">Enterprise Encrypted</span>

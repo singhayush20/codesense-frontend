@@ -3,11 +3,17 @@ import { OAuthButton } from "./OAuthButton";
 
 interface LoginCardProps {
   activeAction: "GitHub" | "Google" | null;
+  oauthErrorMessage?: string | null;
   toastMessage: string | null;
   onOAuthClick: (provider: "GitHub" | "Google") => void;
 }
 
-export function LoginCard({ activeAction, toastMessage, onOAuthClick }: LoginCardProps) {
+export function LoginCard({
+  activeAction,
+  oauthErrorMessage,
+  toastMessage,
+  onOAuthClick,
+}: LoginCardProps) {
   return (
     <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-800 bg-slate-950/95 p-8 shadow-[0_32px_80px_-38px_rgba(0,0,0,0.8)] backdrop-blur-xl transition duration-300">
       <div className="absolute left-1/2 top-0 h-32 w-[160%] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
@@ -24,6 +30,15 @@ export function LoginCard({ activeAction, toastMessage, onOAuthClick }: LoginCar
           </div>
         </div>
 
+        {oauthErrorMessage ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100 shadow-sm shadow-red-500/10"
+          >
+            <p className="font-medium">{oauthErrorMessage}</p>
+          </div>
+        ) : null}
+
         {toastMessage ? (
           <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-100 shadow-sm shadow-indigo-500/10">
             <p className="font-medium">{toastMessage}</p>
@@ -38,7 +53,7 @@ export function LoginCard({ activeAction, toastMessage, onOAuthClick }: LoginCar
             loading={activeAction === "GitHub"}
           />
           <OAuthButton
-            label="Continue with Google"
+            label="Sign in with Google"
             icon={
               <span className="grid h-7 w-7 place-items-center rounded-xl bg-white text-sm text-slate-950">
                 G

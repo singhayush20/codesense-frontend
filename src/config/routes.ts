@@ -3,6 +3,10 @@ export const routes = {
     home: "/",
     login: "/login",
   },
+  auth: {
+    googleStart: "/auth/google/start",
+    googleCallback: "/auth/google/callback",
+  },
   app: {
     dashboard: "/dashboard",
   },
