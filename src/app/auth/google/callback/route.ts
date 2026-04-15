@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getAuthEnv } from "@/config/env";
 import { routes } from "@/config/routes";
+import { GOOGLE_OAUTH_STATE_COOKIE_NAME, type OAuthErrorCode } from "@/modules/auth/utils";
 import {
-  AUTH_TOKEN_COOKIE_NAME,
-  getJwtMaxAgeSeconds,
-  GOOGLE_OAUTH_STATE_COOKIE_NAME,
-  type OAuthErrorCode,
-} from "@/modules/auth/utils";
+  clearAuthCookies,
+  exchangeGoogleCodeForSession,
+  setAuthCookies,
+} from "@/modules/auth/server/session";
 
 export const runtime = "nodejs";
 
@@ -30,46 +29,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { apiUrl } = getAuthEnv();
-    const oauthExchangeUrl = new URL("/api/v1/auth/oauth2/google", apiUrl);
+    const session = await exchangeGoogleCodeForSession(code);
 
-    oauthExchangeUrl.searchParams.set("code", code);
-
-    const backendResponse = await fetch(oauthExchangeUrl, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    });
-
-    if (!backendResponse.ok) {
-      return redirectToLogin(request, "oauth_failed");
-    }
-
-    const data: unknown = await backendResponse.json();
-
-    if (!isTokenResponse(data)) {
-      return redirectToLogin(request, "oauth_failed");
-    }
-
-    const jwtMaxAgeSeconds = getJwtMaxAgeSeconds(data.token);
-
-    if (typeof jwtMaxAgeSeconds === "number" && jwtMaxAgeSeconds <= 0) {
+    if (!session) {
       return redirectToLogin(request, "oauth_failed");
     }
 
     const response = NextResponse.redirect(new URL(routes.app.dashboard, request.url));
 
     response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE_NAME);
-    response.cookies.set(AUTH_TOKEN_COOKIE_NAME, data.token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      priority: "high",
-      ...(typeof jwtMaxAgeSeconds === "number" ? { maxAge: jwtMaxAgeSeconds } : {}),
-    });
+    setAuthCookies(response, session);
 
     return response;
   } catch {
@@ -84,16 +53,7 @@ function redirectToLogin(request: NextRequest, error: OAuthErrorCode) {
 
   const response = NextResponse.redirect(loginUrl);
 
-  response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE_NAME);
+  clearAuthCookies(response);
 
   return response;
-}
-
-function isTokenResponse(value: unknown): value is { token: string } {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "token" in value &&
-    typeof value.token === "string"
-  );
 }

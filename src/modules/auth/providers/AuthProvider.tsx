@@ -12,6 +12,9 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
+import { AuthSnackbar } from "@/modules/auth/components/AuthSnackbar";
+import { AUTH_SESSION_EXPIRED_EVENT } from "@/modules/auth/events";
+import { AUTH_SNACKBAR_DURATION_MS, getAuthNoticeMessage } from "@/modules/auth/utils";
 
 interface AuthContextValue {
   isAuthenticated: boolean;
@@ -19,6 +22,7 @@ interface AuthContextValue {
   logoutError: string | null;
   setAuthenticated: (value: boolean) => void;
   clearLogoutError: () => void;
+  showSnackbar: (message: string) => void;
   logout: () => Promise<void>;
 }
 
@@ -34,17 +38,73 @@ export function AuthProvider({
   initialIsAuthenticated,
 }: AuthProviderProps) {
   const router = useRouter();
+  const sessionExpiredMessage =
+    getAuthNoticeMessage("session_expired") ?? "Your session expired. Please log in again.";
   const [isAuthenticated, setIsAuthenticated] = useState(initialIsAuthenticated);
   const [isLoading, setIsLoading] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
+  const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setIsAuthenticated(initialIsAuthenticated);
   }, [initialIsAuthenticated]);
 
+  useEffect(() => {
+    if (!snackbarMessage) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSnackbarMessage(null);
+    }, AUTH_SNACKBAR_DURATION_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [snackbarMessage]);
+
   const clearLogoutError = useCallback(() => {
     setLogoutError(null);
   }, []);
+
+  const showSnackbar = useCallback((message: string) => {
+    setSnackbarMessage(message);
+  }, []);
+
+  const completeLogout = useCallback(
+    (message?: string) => {
+      setLogoutError(null);
+      setIsLoading(false);
+
+      if (message) {
+        setSnackbarMessage(message);
+      }
+
+      startTransition(() => {
+        setIsAuthenticated(false);
+        router.replace(routes.public.login);
+        router.refresh();
+      });
+    },
+    [router],
+  );
+
+  useEffect(() => {
+    const handleSessionExpired = (event: Event) => {
+      const message =
+        event instanceof CustomEvent && typeof event.detail?.message === "string"
+          ? event.detail.message
+          : sessionExpiredMessage;
+
+      completeLogout(message);
+    };
+
+    window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, [completeLogout, sessionExpiredMessage]);
 
   const logout = useCallback(async () => {
     if (isLoading) {
@@ -64,17 +124,12 @@ export function AuthProvider({
         throw new Error("Logout failed");
       }
 
-      startTransition(() => {
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        router.replace(routes.public.login);
-        router.refresh();
-      });
+      completeLogout();
     } catch {
       setLogoutError("We could not log you out. Please try again.");
       setIsLoading(false);
     }
-  }, [isLoading, router]);
+  }, [completeLogout, isLoading]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -83,12 +138,18 @@ export function AuthProvider({
       logoutError,
       setAuthenticated: setIsAuthenticated,
       clearLogoutError,
+      showSnackbar,
       logout,
     }),
-    [clearLogoutError, isAuthenticated, isLoading, logout, logoutError],
+    [clearLogoutError, isAuthenticated, isLoading, logout, logoutError, showSnackbar],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <AuthSnackbar message={snackbarMessage} />
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuthContext(): AuthContextValue {
