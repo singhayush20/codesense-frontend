@@ -10,23 +10,7 @@ import { Sidebar } from "./Sidebar";
 const SIDEBAR_STORAGE_KEY = "codesense.sidebar.open";
 const MOBILE_MEDIA_QUERY = "(max-width: 1023px)";
 
-function getIsMobileViewport(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return window.matchMedia(MOBILE_MEDIA_QUERY).matches;
-}
-
-function getInitialSidebarState(): boolean {
-  if (typeof window === "undefined") {
-    return true;
-  }
-
-  if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
-    return false;
-  }
-
+function getDesktopSidebarState(): boolean {
   const savedValue = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
 
   if (savedValue === "open") {
@@ -47,18 +31,23 @@ interface ProtectedLayoutShellProps {
 export function ProtectedLayoutShell({ children }: ProtectedLayoutShellProps) {
   const pathname = usePathname();
   const { clearLogoutError, isAuthenticated, isLoading, logout, logoutError } = useAuth();
-  const [isMobileViewport, setIsMobileViewport] = useState(getIsMobileViewport);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(getInitialSidebarState);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [hasSyncedSidebarState, setHasSyncedSidebarState] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
 
-    const handleChange = (event: MediaQueryListEvent) => {
-      setIsMobileViewport(event.matches);
+    const syncSidebarState = (matches: boolean) => {
+      setIsMobileViewport(matches);
+      setIsSidebarOpen(matches ? false : getDesktopSidebarState());
+      setHasSyncedSidebarState(true);
+    };
 
-      if (event.matches) {
-        setIsSidebarOpen(false);
-      }
+    syncSidebarState(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      syncSidebarState(event.matches);
     };
 
     mediaQuery.addEventListener("change", handleChange);
@@ -69,8 +58,12 @@ export function ProtectedLayoutShell({ children }: ProtectedLayoutShellProps) {
   }, []);
 
   useEffect(() => {
+    if (!hasSyncedSidebarState || isMobileViewport) {
+      return;
+    }
+
     window.localStorage.setItem(SIDEBAR_STORAGE_KEY, isSidebarOpen ? "open" : "closed");
-  }, [isSidebarOpen]);
+  }, [hasSyncedSidebarState, isMobileViewport, isSidebarOpen]);
 
   useEffect(() => {
     clearLogoutError();
