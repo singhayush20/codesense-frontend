@@ -33,7 +33,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className="min-h-full bg-background text-foreground">
+      <body
+        className="min-h-full bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <Script id="codesense-theme-init" strategy="beforeInteractive">
           {getThemeInitializationScript()}
         </Script>
