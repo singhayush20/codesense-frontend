@@ -85,7 +85,7 @@ export function Sidebar({
                     isActive
                       ? "border border-primary/15 bg-primary/10 text-foreground"
                       : "text-muted-foreground hover:translate-x-1 hover:bg-muted hover:text-foreground",
-                    !isSidebarOpen && "lg:justify-center lg:px-0",
+                    !isSidebarOpen && "lg:justify-center lg:gap-0 lg:px-0",
                   )}
                 >
                   <Icon
@@ -128,7 +128,7 @@ export function Sidebar({
               title="Logout"
               className={cn(
                 "group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-destructive transition-all duration-200 hover:translate-x-1 hover:bg-destructive/10 disabled:cursor-wait disabled:opacity-70",
-                !isSidebarOpen && "lg:justify-center lg:px-0",
+                !isSidebarOpen && "lg:justify-center lg:gap-0 lg:px-0",
               )}
             >
               <LogOut className="h-5 w-5 shrink-0 text-destructive transition-colors duration-200" />
