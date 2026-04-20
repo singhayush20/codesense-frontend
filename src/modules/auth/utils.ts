@@ -1,10 +1,8 @@
 import { routes } from "@/config/routes";
-import type { AuthNoticeCode, AuthTokenResponse } from "@/modules/auth/types";
+import type { AuthNoticeCode } from "@/modules/auth/types";
 
 export const AUTH_TOKEN_COOKIE_NAME = "codesense_auth_token";
 export const REFRESH_TOKEN_COOKIE_NAME = "codesense_refresh_token";
-export const AUTH_TOKEN_TYPE_COOKIE_NAME = "codesense_auth_token_type";
-export const AUTH_TOKEN_EXPIRES_AT_COOKIE_NAME = "codesense_access_token_expires_at";
 export const GOOGLE_OAUTH_STATE_COOKIE_NAME = "codesense_google_oauth_state";
 export const GOOGLE_OAUTH_STATE_MAX_AGE_SECONDS = 60 * 10;
 export const GOOGLE_OAUTH_SCOPES = ["openid", "email", "profile"] as const;
@@ -79,31 +77,4 @@ export function getSingleSearchParamValue(
   }
 
   return value ?? undefined;
-}
-
-export function getMaxAgeSecondsFromIso(value: string): number | null {
-  const expiresAt = Date.parse(value);
-
-  if (Number.isNaN(expiresAt)) {
-    return null;
-  }
-
-  return Math.max(0, Math.ceil((expiresAt - Date.now()) / 1_000));
-}
-
-export function isAuthTokenResponse(value: unknown): value is AuthTokenResponse {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "accessToken" in value &&
-    typeof value.accessToken === "string" &&
-    "refreshToken" in value &&
-    typeof value.refreshToken === "string" &&
-    "tokenType" in value &&
-    typeof value.tokenType === "string" &&
-    "accessTokenExpiresAt" in value &&
-    typeof value.accessTokenExpiresAt === "string" &&
-    "refreshTokenExpiresAt" in value &&
-    typeof value.refreshTokenExpiresAt === "string"
-  );
 }

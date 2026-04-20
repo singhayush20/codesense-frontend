@@ -8,12 +8,4 @@ export interface OAuthProvider {
   url: string;
 }
 
-export interface AuthTokenResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-  accessTokenExpiresAt: string;
-  refreshTokenExpiresAt: string;
-}
-
 export type AuthNoticeCode = "session_expired";

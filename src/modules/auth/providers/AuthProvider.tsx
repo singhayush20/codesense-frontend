@@ -118,6 +118,7 @@ export function AuthProvider({
       const response = await fetch(routes.auth.logout, {
         method: "POST",
         cache: "no-store",
+        credentials: "same-origin",
       });
 
       if (!response.ok) {

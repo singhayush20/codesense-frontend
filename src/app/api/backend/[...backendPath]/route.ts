@@ -1,6 +1,9 @@
 import { type NextRequest } from "next/server";
 import { getAuthEnv } from "@/config/env";
-import { AUTH_TOKEN_COOKIE_NAME, AUTH_TOKEN_TYPE_COOKIE_NAME } from "@/modules/auth/utils";
+import {
+  appendSetCookieHeaders,
+  getBackendAuthCookieHeader,
+} from "@/modules/auth/server/session";
 
 const BODYLESS_METHODS = new Set(["GET", "HEAD"]);
 const DISALLOWED_REQUEST_HEADERS = new Set([
@@ -54,9 +57,10 @@ async function handleBackendProxy(request: NextRequest, context: BackendProxyRou
     const { apiUrl } = getAuthEnv();
     const { backendPath } = await context.params;
     const backendUrl = new URL(backendPath.join("/"), apiUrl);
-    const accessToken = request.cookies.get(AUTH_TOKEN_COOKIE_NAME)?.value;
-    const tokenType = request.cookies.get(AUTH_TOKEN_TYPE_COOKIE_NAME)?.value;
-    const headers = getForwardHeaders(request.headers, accessToken, tokenType);
+    const headers = getForwardHeaders(
+      request.headers,
+      getBackendAuthCookieHeader(request),
+    );
     const body = BODYLESS_METHODS.has(request.method) ? undefined : await request.arrayBuffer();
 
     backendUrl.search = request.nextUrl.search;
@@ -69,9 +73,12 @@ async function handleBackendProxy(request: NextRequest, context: BackendProxyRou
       redirect: "manual",
     });
 
+    const responseHeaders = getForwardResponseHeaders(response.headers);
+    appendSetCookieHeaders(responseHeaders, response.headers);
+
     return new Response(response.body, {
       status: response.status,
-      headers: getForwardResponseHeaders(response.headers),
+      headers: responseHeaders,
     });
   } catch {
     return Response.json(
@@ -85,8 +92,7 @@ async function handleBackendProxy(request: NextRequest, context: BackendProxyRou
 
 function getForwardHeaders(
   incomingHeaders: Headers,
-  accessToken?: string,
-  tokenType?: string,
+  authCookieHeader: string | null,
 ) {
   const headers = new Headers();
 
@@ -98,8 +104,8 @@ function getForwardHeaders(
     headers.set(name, value);
   }
 
-  if (accessToken) {
-    headers.set("Authorization", `${tokenType ?? "Bearer"} ${accessToken}`);
+  if (authCookieHeader) {
+    headers.set("Cookie", authCookieHeader);
   }
 
   return headers;

@@ -2,9 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { routes } from "@/config/routes";
 import { GOOGLE_OAUTH_STATE_COOKIE_NAME, type OAuthErrorCode } from "@/modules/auth/utils";
 import {
+  appendSetCookieHeaders,
   clearAuthCookies,
   exchangeGoogleCodeForSession,
-  setAuthCookies,
 } from "@/modules/auth/server/session";
 
 export const runtime = "nodejs";
@@ -29,16 +29,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const session = await exchangeGoogleCodeForSession(code);
+    const backendResponse = await exchangeGoogleCodeForSession(code);
 
-    if (!session) {
+    if (!backendResponse) {
       return redirectToLogin(request, "oauth_failed");
     }
 
     const response = NextResponse.redirect(new URL(routes.app.dashboard, request.url));
 
     response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE_NAME);
-    setAuthCookies(response, session);
+    appendSetCookieHeaders(response.headers, backendResponse.headers);
 
     return response;
   } catch {
