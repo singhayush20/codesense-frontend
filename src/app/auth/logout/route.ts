@@ -1,16 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import {
-  AUTH_TOKEN_COOKIE_NAME,
-  GOOGLE_OAUTH_STATE_COOKIE_NAME,
-} from "@/modules/auth/utils";
+  appendSetCookieHeaders,
+  clearAuthCookies,
+  logoutBackendSession,
+} from "@/modules/auth/server/session";
 
 export const runtime = "nodejs";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const backendResponse = await logoutBackendSession(request);
+
   const response = new NextResponse(null, { status: 204 });
 
-  response.cookies.delete(AUTH_TOKEN_COOKIE_NAME);
-  response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE_NAME);
+  clearAuthCookies(response);
+
+  if (backendResponse) {
+    appendSetCookieHeaders(response.headers, backendResponse.headers);
+  }
 
   return response;
 }

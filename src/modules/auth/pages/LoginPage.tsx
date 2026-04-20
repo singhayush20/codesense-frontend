@@ -2,16 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { routes } from "@/config/routes";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { LoginCard } from "../components/LoginCard";
 import { AuthPageFooter } from "../components/AuthPageFooter";
 
 interface LoginPageProps {
   oauthErrorMessage?: string | null;
+  authNoticeMessage?: string | null;
 }
 
-export function LoginPage({ oauthErrorMessage = null }: LoginPageProps) {
+export function LoginPage({
+  oauthErrorMessage = null,
+  authNoticeMessage = null,
+}: LoginPageProps) {
+  const { showSnackbar } = useAuth();
   const [activeAction, setActiveAction] = useState<"GitHub" | "Google" | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const hasShownAuthNotice = useRef(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -21,6 +28,15 @@ export function LoginPage({ oauthErrorMessage = null }: LoginPageProps) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!authNoticeMessage || hasShownAuthNotice.current) {
+      return;
+    }
+
+    hasShownAuthNotice.current = true;
+    showSnackbar(authNoticeMessage);
+  }, [authNoticeMessage, showSnackbar]);
 
   const showToast = (message: string) => {
     setToastMessage(message);

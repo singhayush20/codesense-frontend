@@ -4,6 +4,7 @@ import { routes } from "@/config/routes";
 import { LoginPage } from "@/modules/auth/pages/LoginPage";
 import {
   AUTH_TOKEN_COOKIE_NAME,
+  getAuthNoticeMessage,
   getOAuthErrorMessage,
   getSingleSearchParamValue,
 } from "@/modules/auth/utils";
@@ -11,6 +12,7 @@ import {
 interface LoginPageRouteProps {
   searchParams?: Promise<{
     error?: string | string[];
+    notice?: string | string[];
   }>;
 }
 
@@ -23,6 +25,9 @@ export default async function LoginPageRoute({ searchParams }: LoginPageRoutePro
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const oauthErrorMessage = getOAuthErrorMessage(getSingleSearchParamValue(resolvedSearchParams.error));
+  const authNoticeMessage = getAuthNoticeMessage(
+    getSingleSearchParamValue(resolvedSearchParams.notice),
+  );
 
-  return <LoginPage oauthErrorMessage={oauthErrorMessage} />;
+  return <LoginPage oauthErrorMessage={oauthErrorMessage} authNoticeMessage={authNoticeMessage} />;
 }

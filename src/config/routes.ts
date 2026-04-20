@@ -6,7 +6,11 @@ export const routes = {
   auth: {
     googleStart: "/auth/google/start",
     googleCallback: "/auth/google/callback",
+    refresh: "/auth/refresh",
     logout: "/auth/logout",
+  },
+  api: {
+    backend: "/api/backend",
   },
   app: {
     dashboard: "/dashboard",
