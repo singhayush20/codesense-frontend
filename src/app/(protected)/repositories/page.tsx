@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { routes } from "@/config/routes";
 import { RepoSelectionTable } from "@/modules/github/components/RepoSelectionTable";
 import { useGithub } from "@/modules/github/hooks/useGithub";
 
 export default function RepositoriesPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const selectedOnly = searchParams.get("view") === "selected";
   const loadedViewRef = useRef<string | null>(null);
@@ -30,6 +28,7 @@ export default function RepositoriesPage() {
     selectedRepoIds,
     setSelectedRepoIds,
     syncRepositories,
+    unselectRepositories,
   } = useGithub();
 
   useEffect(() => {
@@ -72,11 +71,7 @@ export default function RepositoriesPage() {
     : selectedRepoIds;
 
   const handleSave = async (repoIds: string[]) => {
-    const saved = await saveSelectedRepositories(repoIds);
-
-    if (saved) {
-      router.push(routes.app.dashboard);
-    }
+    await saveSelectedRepositories(repoIds);
   };
 
   const handleSync = async () => {
@@ -154,6 +149,7 @@ export default function RepositoriesPage() {
         isSaving={isSavingSelection}
         isSyncing={isSyncing}
         onSave={selectedOnly ? undefined : handleSave}
+        onUnselect={unselectRepositories}
         onSelectedRepoIdsChange={setSelectedRepoIds}
         onSync={selectedOnly ? undefined : handleSync}
       />
