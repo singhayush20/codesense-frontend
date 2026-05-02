@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { GitBranch, Search, Unplug } from "lucide-react";
+import { GitBranch, Loader2, Search, Unplug, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
@@ -27,6 +27,7 @@ interface RepoSelectionTableProps {
   selectedOnly?: boolean;
   showDisconnectAction?: boolean;
   onSave?: (repoIds: string[]) => Promise<void>;
+  onUnselect?: (repoIds: string[]) => Promise<void>;
   onSelectedRepoIdsChange: (repoIds: string[]) => void;
   onSync?: () => Promise<void>;
 }
@@ -41,12 +42,17 @@ export function RepoSelectionTable({
   selectedOnly = false,
   showDisconnectAction = false,
   onSave,
+  onUnselect,
   onSelectedRepoIdsChange,
   onSync,
 }: RepoSelectionTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isUnlinkMode, setIsUnlinkMode] = useState(false);
+  const [tempUnselectIds, setTempUnselectIds] = useState<string[]>([]);
+
   const selectedSet = useMemo(() => new Set(selectedRepoIds), [selectedRepoIds]);
   const lockedSet = useMemo(() => new Set(lockedRepoIds), [lockedRepoIds]);
+  const unselectSet = useMemo(() => new Set(tempUnselectIds), [tempUnselectIds]);
 
   const visibleRepositories = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -68,6 +74,17 @@ export function RepoSelectionTable({
 
   const updateSelection = useCallback(
     (repoId: string, checked: boolean) => {
+      if (isUnlinkMode) {
+        const nextUnselect = new Set(tempUnselectIds);
+        if (checked) {
+          nextUnselect.add(repoId);
+        } else {
+          nextUnselect.delete(repoId);
+        }
+        setTempUnselectIds(Array.from(nextUnselect));
+        return;
+      }
+
       if (lockedSet.has(repoId)) {
         return;
       }
@@ -82,18 +99,42 @@ export function RepoSelectionTable({
 
       onSelectedRepoIdsChange(Array.from(nextSelection));
     },
-    [lockedSet, onSelectedRepoIdsChange, selectedRepoIds],
+    [isUnlinkMode, tempUnselectIds, lockedSet, selectedRepoIds, onSelectedRepoIdsChange],
   );
 
   const selectAllVisible = useCallback(() => {
+    if (isUnlinkMode) {
+      const nextUnselect = new Set(tempUnselectIds);
+      visibleRepositories.forEach((repository) => nextUnselect.add(repository.repoId));
+      setTempUnselectIds(Array.from(nextUnselect));
+      return;
+    }
+
     const nextSelection = new Set(selectedRepoIds);
     visibleRepositories.forEach((repository) => nextSelection.add(repository.repoId));
     onSelectedRepoIdsChange(Array.from(nextSelection));
-  }, [onSelectedRepoIdsChange, selectedRepoIds, visibleRepositories]);
+  }, [isUnlinkMode, tempUnselectIds, visibleRepositories, selectedRepoIds, onSelectedRepoIdsChange]);
 
   const clearSelection = useCallback(() => {
+    if (isUnlinkMode) {
+      setTempUnselectIds([]);
+      return;
+    }
     onSelectedRepoIdsChange(selectedRepoIds.filter((repoId) => lockedSet.has(repoId)));
-  }, [lockedSet, onSelectedRepoIdsChange, selectedRepoIds]);
+  }, [isUnlinkMode, lockedSet, onSelectedRepoIdsChange, selectedRepoIds]);
+
+  const handleUnselect = async () => {
+    if (onUnselect && tempUnselectIds.length > 0) {
+      await onUnselect(tempUnselectIds);
+      setIsUnlinkMode(false);
+      setTempUnselectIds([]);
+    }
+  };
+
+  const toggleUnlinkMode = () => {
+    setIsUnlinkMode(!isUnlinkMode);
+    setTempUnselectIds([]);
+  };
 
   return (
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-6">
@@ -109,26 +150,63 @@ export function RepoSelectionTable({
           </p>
         </div>
 
-        {!isReadOnly ? (
+        {!isReadOnly || (selectedOnly && showDisconnectAction) ? (
           <div className="flex flex-wrap gap-2">
-            {onSync ? (
+            {selectedOnly && showDisconnectAction && !isUnlinkMode && repositories.length > 0 ? (
+              <Button type="button" variant="outline" onClick={toggleUnlinkMode} className="gap-2">
+                <Unplug className="size-4" aria-hidden="true" />
+                Unlink
+              </Button>
+            ) : null}
+
+            {onSync && !isUnlinkMode ? (
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => void onSync()}
                 disabled={isSyncing}
+                className="gap-2"
               >
+                {isSyncing ? <Loader2 className="size-4 animate-spin" /> : null}
                 {isSyncing ? "Syncing..." : "Sync repositories"}
               </Button>
             ) : null}
-            {onSave ? (
+
+            {onSave && !isUnlinkMode ? (
               <Button
                 type="button"
                 onClick={() => void onSave(selectedRepoIds)}
                 disabled={isSaving || selectedRepoIds.length === 0}
+                className="gap-2"
               >
+                {isSaving ? <Loader2 className="size-4 animate-spin" /> : null}
                 {isSaving ? "Saving..." : "Save & Continue"}
               </Button>
+            ) : null}
+
+            {isUnlinkMode ? (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={toggleUnlinkMode}
+                  className="gap-2"
+                  disabled={isSaving}
+                >
+                  <X className="size-4" aria-hidden="true" />
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleUnselect}
+                  disabled={isSaving || tempUnselectIds.length === 0}
+                  className="gap-2"
+                >
+                  {isSaving ? <Loader2 className="size-4 animate-spin" /> : null}
+                  {isSaving ? "Removing..." : "Unlink Selected"}
+                </Button>
+              </>
             ) : null}
           </div>
         ) : null}
@@ -147,13 +225,13 @@ export function RepoSelectionTable({
             />
           </div>
 
-          {!isReadOnly ? (
+          {!isReadOnly || isUnlinkMode ? (
             <div className="flex items-center gap-2">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={selectAllVisible}
-                disabled={visibleRepositories.length === 0 || allVisibleSelected}
+                disabled={visibleRepositories.length === 0 || (isUnlinkMode ? tempUnselectIds.length === visibleRepositories.length : allVisibleSelected)}
               >
                 Select all
               </Button>
@@ -161,7 +239,7 @@ export function RepoSelectionTable({
                 type="button"
                 variant="ghost"
                 onClick={clearSelection}
-                disabled={selectedRepoIds.length === 0}
+                disabled={isUnlinkMode ? tempUnselectIds.length === 0 : selectedRepoIds.length === 0}
               >
                 Clear
               </Button>
@@ -196,7 +274,7 @@ export function RepoSelectionTable({
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  {!isReadOnly ? (
+                  {!isReadOnly || isUnlinkMode ? (
                     <TableHead className="w-12">
                       <span className="sr-only">Select</span>
                     </TableHead>
@@ -204,27 +282,25 @@ export function RepoSelectionTable({
                   <TableHead>Repository</TableHead>
                   <TableHead className="hidden lg:table-cell">Full name</TableHead>
                   <TableHead className="w-36 text-right">Visibility</TableHead>
-                  {showDisconnectAction ? (
-                    <TableHead className="w-40 text-right">Action</TableHead>
-                  ) : null}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {visibleRepositories.map((repository) => {
                   const isSelected = selectedSet.has(repository.repoId);
                   const isLocked = lockedSet.has(repository.repoId);
+                  const isChecked = isUnlinkMode ? unselectSet.has(repository.repoId) : isSelected;
 
                   return (
                     <TableRow
                       key={repository.id}
-                      className={cn(isSelected && "bg-primary/5 hover:bg-primary/10")}
+                      className={cn((isSelected || isChecked) && "bg-primary/5 hover:bg-primary/10")}
                     >
-                      {!isReadOnly ? (
+                      {!isReadOnly || isUnlinkMode ? (
                         <TableCell>
                           <Checkbox
                             aria-label={`Select ${repository.fullName}`}
-                            checked={isSelected}
-                            disabled={isLocked}
+                            checked={isChecked}
+                            disabled={!isUnlinkMode && isLocked}
                             onChange={(event) =>
                               updateSelection(repository.repoId, event.target.checked)
                             }
@@ -252,20 +328,6 @@ export function RepoSelectionTable({
                           {repository.isPrivate ? "Private" : "Public"}
                         </Badge>
                       </TableCell>
-                      {showDisconnectAction ? (
-                        <TableCell className="text-right">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            disabled
-                            title="Disconnect API is not available yet"
-                            className="gap-2"
-                          >
-                            <Unplug className="size-4" aria-hidden="true" />
-                            Disconnect
-                          </Button>
-                        </TableCell>
-                      ) : null}
                     </TableRow>
                   );
                 })}

@@ -99,6 +99,21 @@ export const githubApi = {
     );
   },
 
+  async unselectRepositories(repoIds: string[]): Promise<GithubReposSelectResponse> {
+    const response = await apiFetch(`${GITHUB_API_BASE}/repos/unselect`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ repoIds }),
+    });
+
+    return parseJsonResponse<GithubReposSelectResponse>(
+      response,
+      "Unable to unselect repositories.",
+    );
+  },
+
   async getSelectedRepositories(): Promise<GithubRepository[]> {
     const response = await apiFetch(`${GITHUB_API_BASE}/repos/selected`);
 

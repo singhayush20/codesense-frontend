@@ -196,6 +196,41 @@ export function useGithub() {
     [setSelectedRepoIds, showSnackbar],
   );
 
+  const unselectRepositories = useCallback(
+    async (repoIds: string[]): Promise<boolean> => {
+      setIsSavingSelection(true);
+      setError(null);
+
+      try {
+        await githubApi.unselectRepositories(repoIds);
+
+        // The API returns the unselected repositories, but we need the remaining ones.
+        // Instead of relying on the response which might be confusing, we filter them out
+        // or re-load them. Since we want to be efficient, let's filter them locally.
+        setPersistedSelectedRepositories((prev) =>
+          prev.filter((repo) => !repoIds.includes(repo.repoId)),
+        );
+
+        setSelectedRepoIdsState((prev) => {
+          const next = prev.filter((id) => !repoIds.includes(id));
+          storeSelectedRepoIds(next);
+          return next;
+        });
+
+        showSnackbar("Repositories removed successfully.");
+        return true;
+      } catch {
+        const message = "We could not remove the selected repositories.";
+        setError(message);
+        showSnackbar(message);
+        return false;
+      } finally {
+        setIsSavingSelection(false);
+      }
+    },
+    [showSnackbar],
+  );
+
   return {
     accounts,
     connectGithub,
@@ -217,5 +252,6 @@ export function useGithub() {
     selectedRepositories,
     setSelectedRepoIds,
     syncRepositories,
+    unselectRepositories,
   };
 }
