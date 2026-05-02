@@ -1,8 +1,8 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { LayoutDashboard, LogOut, UserCircle2 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { CheckSquare, GitBranch, LayoutDashboard, LogOut, Settings } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils";
 
@@ -22,9 +22,19 @@ const navigationItems = [
     icon: LayoutDashboard,
   },
   {
-    label: "Profile",
-    href: routes.app.profile,
-    icon: UserCircle2,
+    label: "Repositories",
+    href: routes.app.repositories,
+    icon: GitBranch,
+  },
+  {
+    label: "Selected Repositories",
+    href: routes.app.selectedRepositories,
+    icon: CheckSquare,
+  },
+  {
+    label: "Settings",
+    href: routes.app.settings,
+    icon: Settings,
   },
 ] as const;
 
@@ -37,6 +47,8 @@ export function Sidebar({
   onLogout,
 }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentView = searchParams.get("view");
 
   return (
     <>
@@ -67,7 +79,16 @@ export function Sidebar({
 
           <nav className="mt-4 space-y-1.5">
             {navigationItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isSelectedRepositoriesItem = item.href === routes.app.selectedRepositories;
+              const isRepositoriesItem = item.href === routes.app.repositories;
+              const isActive =
+                (isSelectedRepositoriesItem &&
+                  pathname === routes.app.repositories &&
+                  currentView === "selected") ||
+                (isRepositoriesItem &&
+                  pathname === routes.app.repositories &&
+                  currentView !== "selected") ||
+                (!isSelectedRepositoriesItem && !isRepositoriesItem && pathname === item.href);
               const Icon = item.icon;
 
               return (

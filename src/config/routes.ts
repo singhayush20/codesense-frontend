@@ -15,6 +15,10 @@ export const routes = {
   app: {
     dashboard: "/dashboard",
     profile: "/profile",
+    githubCallback: "/github/callback",
+    repositories: "/repositories",
+    selectedRepositories: "/repositories?view=selected",
+    settings: "/settings",
   },
 } as const;
 
