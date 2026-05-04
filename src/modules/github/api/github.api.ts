@@ -3,12 +3,14 @@
 import { apiFetch } from "@/lib/api";
 import type {
   GithubAccount,
-  GithubConnectResponse,
-  GithubInstallCallbackResponse,
+  GithubAccountResponseDto,
+  GithubInstallUrlResponse,
+  GithubOAuthUrlResponse,
   GithubRepository,
   GithubReposSelectResponse,
   GithubReposSyncRequest,
   GithubReposSyncResponse,
+  HandleInstallationResponseDto,
 } from "@/modules/github/types/github.types";
 
 const GITHUB_API_BASE = "/api/v1/github";
@@ -36,40 +38,62 @@ async function parseJsonResponse<T>(response: Response, fallbackMessage: string)
 }
 
 export const githubApi = {
-  async getConnectUrl(): Promise<string> {
-    const response = await apiFetch(`${GITHUB_API_BASE}/connect`);
-    const data = await parseJsonResponse<GithubConnectResponse>(
+  async getOAuthUrl(): Promise<string> {
+    const response = await apiFetch(`${GITHUB_API_BASE}/oauth/url`);
+    const data = await parseJsonResponse<GithubOAuthUrlResponse>(
       response,
-      "Unable to start the GitHub connection flow.",
+      "Unable to start the GitHub OAuth flow.",
     );
 
     if (!data.url) {
-      throw new GithubApiError("GitHub did not return a redirect URL.");
+      throw new GithubApiError("GitHub did not return an OAuth redirect URL.");
     }
 
     return data.url;
   },
 
-  async completeInstallation(installationId: string): Promise<GithubInstallCallbackResponse> {
+  async handleOAuthCallback(code: string, state: string): Promise<GithubAccountResponseDto> {
+    const searchParams = new URLSearchParams({ code, state });
+    const response = await apiFetch(`${GITHUB_API_BASE}/oauth/callback?${searchParams}`);
+
+    return parseJsonResponse<GithubAccountResponseDto>(
+      response,
+      "Unable to complete the GitHub OAuth authorization.",
+    );
+  },
+
+  async getInstallUrl(accountId: string): Promise<string> {
+    const searchParams = new URLSearchParams({ accountId });
+    const response = await apiFetch(`${GITHUB_API_BASE}/install/url?${searchParams}`);
+    const data = await parseJsonResponse<GithubInstallUrlResponse>(
+      response,
+      "Unable to get the GitHub installation URL.",
+    );
+
+    if (!data.url) {
+      throw new GithubApiError("GitHub did not return an installation URL.");
+    }
+
+    return data.url;
+  },
+
+  async completeInstallation(installationId: string): Promise<HandleInstallationResponseDto> {
     const searchParams = new URLSearchParams({ installation_id: installationId });
     const response = await apiFetch(`${GITHUB_API_BASE}/install/callback?${searchParams}`);
 
-    console.log("GitHub installation callback response:", response);
-
-    return parseJsonResponse<GithubInstallCallbackResponse>(
+    return parseJsonResponse<HandleInstallationResponseDto>(
       response,
       "Unable to complete the GitHub installation.",
     );
   },
 
-  async syncRepositories(accountId: string): Promise<GithubReposSyncResponse> {
-    const body: GithubReposSyncRequest = { accountId };
+  async syncRepositories(installationId: string): Promise<GithubReposSyncResponse> {
     const response = await apiFetch(`${GITHUB_API_BASE}/repos/sync`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ installationId }),
     });
 
     return parseJsonResponse<GithubReposSyncResponse>(
@@ -121,6 +145,18 @@ export const githubApi = {
       response,
       "Unable to load selected repositories.",
     );
+  },
+
+  async signout(accountId: string): Promise<{ success: boolean }> {
+    const response = await apiFetch(`${GITHUB_API_BASE}/accounts/signout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountId }),
+    });
+
+    return parseJsonResponse<{ success: boolean }>(response, "Unable to sign out of GitHub.");
   },
 };
 

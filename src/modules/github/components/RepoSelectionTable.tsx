@@ -26,10 +26,10 @@ interface RepoSelectionTableProps {
   lockedRepoIds?: string[];
   selectedOnly?: boolean;
   showDisconnectAction?: boolean;
-  onSave?: (repoIds: string[]) => Promise<void>;
-  onUnselect?: (repoIds: string[]) => Promise<void>;
+  onSave?: (repoIds: string[]) => Promise<void | boolean>;
+  onUnselect?: (repoIds: string[]) => Promise<void | boolean>;
   onSelectedRepoIdsChange: (repoIds: string[]) => void;
-  onSync?: () => Promise<void>;
+  onSync?: () => Promise<void | any>;
 }
 
 export function RepoSelectionTable({

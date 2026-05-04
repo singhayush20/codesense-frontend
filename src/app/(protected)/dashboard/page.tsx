@@ -18,9 +18,11 @@ export default function DashboardPage() {
   const hasRequestedAccounts = useRef(false);
   const { accounts, error, hasLoadedAccounts, isLoadingAccounts, loadAccounts } = useGithub();
   const installationId = getValidInstallationId(searchParams.get("installation_id"));
+  const code = searchParams.get("code");
+  const state = searchParams.get("state");
 
   useEffect(() => {
-    if (installationId) {
+    if (installationId || (code && state)) {
       return;
     }
 
@@ -30,10 +32,10 @@ export default function DashboardPage() {
 
     hasRequestedAccounts.current = true;
     void loadAccounts();
-  }, [installationId, loadAccounts]);
+  }, [installationId, code, state, loadAccounts]);
 
-  if (installationId) {
-    return <ConnectingState installationId={installationId} />;
+  if (installationId || (code && state)) {
+    return <ConnectingState installationId={installationId} code={code} state={state} />;
   }
 
   if (!hasLoadedAccounts || isLoadingAccounts) {

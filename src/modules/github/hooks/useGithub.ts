@@ -13,19 +13,21 @@ import {
 } from "@/modules/github/store/github.store";
 import type {
   GithubAccount,
-  GithubInstallAccount,
+  GithubAccountResponseDto,
   GithubRepository,
   GithubReposSyncResponse,
 } from "@/modules/github/types/github.types";
 
-function toConnectedAccount(account: GithubInstallAccount): GithubAccount {
+function toConnectedAccount(account: GithubAccountResponseDto): GithubAccount {
   return {
     id: account.id,
-    login: account.login,
-    githubAccountId: account.id,
+    login: account.loginId,
+    loginId: account.loginId,
+    githubAccountId: account.githubAccountId,
     installationId: account.installationId,
-    accountType: "USER",
-    createdAt: new Date().toISOString(),
+    accountType: account.accountType,
+    createdAt: account.createdAt instanceof Date ? account.createdAt.toISOString() : account.createdAt,
+    isConnected: account.isConnected,
   };
 }
 
@@ -64,6 +66,13 @@ export function useGithub() {
       const nextAccounts = await githubApi.getAccounts();
       setAccounts(nextAccounts);
       storeGithubAccounts(nextAccounts);
+
+      // If no account has an installationId, clear repositories to prevent stale data
+      if (!nextAccounts.some((account) => account.installationId)) {
+        setRepositories([]);
+        storeGithubRepositories([]);
+      }
+
       return nextAccounts;
     } catch {
       const message = "We could not load your connected GitHub accounts.";
@@ -81,22 +90,63 @@ export function useGithub() {
     setError(null);
 
     try {
-      const url = await githubApi.getConnectUrl();
+      const url = await githubApi.getOAuthUrl();
       window.location.assign(url);
     } catch {
-      const message = "We could not start the GitHub connection flow.";
+      const message = "We could not start the GitHub authorization flow.";
       setError(message);
       showSnackbar(message);
       setIsConnecting(false);
     }
   }, [showSnackbar]);
 
-  const syncRepositories = useCallback(
-    async (accountId?: string): Promise<GithubReposSyncResponse | null> => {
-      const selectedAccountId = accountId ?? accounts[0]?.id;
+  const completeOAuth = useCallback(
+    async (code: string, state: string): Promise<boolean> => {
+      setIsConnecting(true);
+      setError(null);
 
-      if (!selectedAccountId) {
-        const message = "Connect a GitHub account before syncing repositories.";
+      try {
+        const response = await githubApi.handleOAuthCallback(code, state);
+        const connectedAccount = toConnectedAccount(response);
+        setAccounts([connectedAccount]);
+        storeGithubAccounts([connectedAccount]);
+        return true;
+      } catch {
+        const message = "We could not complete the GitHub authorization.";
+        setError(message);
+        showSnackbar(message);
+        return false;
+      } finally {
+        setIsConnecting(false);
+      }
+    },
+    [showSnackbar],
+  );
+
+  const configureInstallation = useCallback(
+    async (githubAccountId: string) => {
+      setIsConnecting(true);
+      setError(null);
+
+      try {
+        const url = await githubApi.getInstallUrl(githubAccountId);
+        window.location.assign(url);
+      } catch {
+        const message = "We could not start the GitHub installation flow.";
+        setError(message);
+        showSnackbar(message);
+        setIsConnecting(false);
+      }
+    },
+    [showSnackbar],
+  );
+
+  const syncRepositories = useCallback(
+    async (installationId?: string): Promise<GithubReposSyncResponse | null> => {
+      const selectedInstallationId = installationId ?? accounts[0]?.installationId;
+
+      if (!selectedInstallationId) {
+        const message = "Configure the GitHub App before syncing repositories.";
         setError(message);
         showSnackbar(message);
         return null;
@@ -106,12 +156,13 @@ export function useGithub() {
       setError(null);
 
       try {
-        const syncResponse = await githubApi.syncRepositories(selectedAccountId);
+        const syncResponse = await githubApi.syncRepositories(selectedInstallationId);
         setRepositories(syncResponse.repositories);
         storeGithubRepositories(syncResponse.repositories);
         return syncResponse;
       } catch {
-        const message = "Repository sync failed. Please try again.";
+        const message =
+          "Repository sync failed. Please ensure the GitHub App is installed and try again.";
         setError(message);
         showSnackbar(message);
         return null;
@@ -153,12 +204,16 @@ export function useGithub() {
           throw new Error("Installation was not completed.");
         }
 
-        const connectedAccount = toConnectedAccount(response.account);
-        setAccounts([connectedAccount]);
-        storeGithubAccounts([connectedAccount]);
+        // Refresh accounts to get the updated installationId
+        const nextAccounts = await loadAccounts();
+        const connectedAccount = nextAccounts.find((a) => a.id === response.accountId);
 
-        const syncResponse = await syncRepositories(connectedAccount.id);
-        return Boolean(syncResponse);
+        if (connectedAccount && connectedAccount.installationId) {
+          const syncResponse = await syncRepositories(connectedAccount.installationId);
+          return Boolean(syncResponse);
+        }
+
+        return true;
       } catch {
         const message = "We could not finish connecting GitHub.";
         setError(message);
@@ -168,7 +223,7 @@ export function useGithub() {
         setIsConnecting(false);
       }
     },
-    [showSnackbar, syncRepositories],
+    [loadAccounts, showSnackbar, syncRepositories],
   );
 
   const saveSelectedRepositories = useCallback(
@@ -178,7 +233,12 @@ export function useGithub() {
       setSelectedRepoIds(repoIds);
 
       try {
-        const response = await githubApi.saveSelectedRepositories(repoIds);
+        // Map repoIds (GitHub IDs) to internal IDs from the available repositories
+        const internalRepoIds = repoIds
+          .map((rid) => repositories.find((r) => r.repoId === rid)?.id)
+          .filter((id): id is string => Boolean(id));
+
+        const response = await githubApi.saveSelectedRepositories(internalRepoIds);
         const persistedRepoIds = response.repositories.map((repository) => repository.repoId);
         setPersistedSelectedRepositories(response.repositories);
         setSelectedRepoIds(persistedRepoIds);
@@ -193,7 +253,7 @@ export function useGithub() {
         setIsSavingSelection(false);
       }
     },
-    [setSelectedRepoIds, showSnackbar],
+    [repositories, setSelectedRepoIds, showSnackbar],
   );
 
   const unselectRepositories = useCallback(
@@ -202,11 +262,13 @@ export function useGithub() {
       setError(null);
 
       try {
-        await githubApi.unselectRepositories(repoIds);
+        // Map repoIds (GitHub IDs) to internal IDs from the currently persisted selected repositories
+        const internalRepoIds = repoIds
+          .map((rid) => persistedSelectedRepositories.find((r) => r.repoId === rid)?.id)
+          .filter((id): id is string => Boolean(id));
 
-        // The API returns the unselected repositories, but we need the remaining ones.
-        // Instead of relying on the response which might be confusing, we filter them out
-        // or re-load them. Since we want to be efficient, let's filter them locally.
+        await githubApi.unselectRepositories(internalRepoIds);
+
         setPersistedSelectedRepositories((prev) =>
           prev.filter((repo) => !repoIds.includes(repo.repoId)),
         );
@@ -228,12 +290,40 @@ export function useGithub() {
         setIsSavingSelection(false);
       }
     },
+    [persistedSelectedRepositories, showSnackbar],
+  );
+
+  const unlinkAccount = useCallback(
+    async (accountId: string): Promise<boolean> => {
+      setIsSavingSelection(true);
+      setError(null);
+
+      try {
+        const response = await githubApi.signout(accountId);
+        if (response.success) {
+          showSnackbar("GitHub account disconnected successfully.");
+          // Refresh the page to reset the app state and show the connect card
+          window.location.href = "/dashboard";
+          return true;
+        }
+        return false;
+      } catch {
+        const message = "We could not disconnect your GitHub account.";
+        setError(message);
+        showSnackbar(message);
+        return false;
+      } finally {
+        setIsSavingSelection(false);
+      }
+    },
     [showSnackbar],
   );
 
   return {
     accounts,
     connectGithub,
+    completeOAuth,
+    configureInstallation,
     completeInstallation,
     error,
     hasLoadedAccounts,
@@ -253,5 +343,6 @@ export function useGithub() {
     setSelectedRepoIds,
     syncRepositories,
     unselectRepositories,
+    unlinkAccount,
   };
 }

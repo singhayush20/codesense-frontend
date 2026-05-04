@@ -1,25 +1,36 @@
 export interface GithubAccount {
   id: string;
   login: string;
+  loginId: string;
   githubAccountId: string;
-  installationId: string;
+  installationId?: string | null;
   accountType: "USER" | "ORGANIZATION" | string;
   createdAt: string;
+  isConnected?: boolean;
 }
 
-export interface GithubInstallAccount {
+export interface GithubAccountResponseDto {
   id: string;
-  login: string;
-  installationId: string;
+  githubAccountId: string;
+  loginId: string;
+  accountType: string;
+  isConnected: boolean;
+  createdAt: Date | string;
+  installationId?: string | null;
 }
 
-export interface GithubInstallCallbackResponse {
-  success: boolean;
-  account: GithubInstallAccount;
-}
-
-export interface GithubConnectResponse {
+export interface GithubOAuthUrlResponse {
   url: string;
+}
+
+export interface GithubInstallUrlResponse {
+  url: string;
+}
+
+export interface HandleInstallationResponseDto {
+  success: boolean;
+  installationId: string;
+  accountId: string;
 }
 
 export interface GithubRepositoryPermissions {

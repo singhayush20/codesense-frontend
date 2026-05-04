@@ -35,7 +35,7 @@ export function ConnectGithubCard() {
       <div className="mt-6 text-center">
         <h1 className="text-3xl font-semibold tracking-tight">Connect GitHub</h1>
         <p className="mx-auto mt-4 max-w-md text-sm font-medium leading-6 text-slate-300">
-          Install the CodeSense GitHub App to securely access your repositories and analyze pull requests with deep architectural insight.
+          Authorize your GitHub account and install the CodeSense App to securely access your repositories and analyze pull requests with deep architectural insight.
         </p>
       </div>
 
