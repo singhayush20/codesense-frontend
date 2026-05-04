@@ -2,12 +2,15 @@
 
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { routes } from "@/config/routes";
 import { RepoSelectionTable } from "@/modules/github/components/RepoSelectionTable";
 import { useGithub } from "@/modules/github/hooks/useGithub";
 
 export default function RepositoriesPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const selectedOnly = searchParams.get("view") === "selected";
   const loadedViewRef = useRef<string | null>(null);
@@ -52,7 +55,7 @@ export default function RepositoriesPage() {
         return;
       }
 
-      void syncRepositories(account.id);
+      void syncRepositories(account.installationId ?? undefined);
       void loadSelectedRepositories().then((selectedRepositories) => {
         setSelectedRepoIds(selectedRepositories.map((repository) => repository.repoId));
       });
@@ -83,7 +86,7 @@ export default function RepositoriesPage() {
     const account = accounts[0];
 
     if (account) {
-      await syncRepositories(account.id);
+      await syncRepositories(account.installationId ?? undefined);
     }
   };
 
@@ -108,6 +111,35 @@ export default function RepositoriesPage() {
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Connect GitHub from the dashboard before choosing repositories.
         </p>
+      </Card>
+    );
+  }
+
+  const account = accounts[0];
+
+  if (account && !account.installationId) {
+    return (
+      <Card className="mx-auto w-full max-w-4xl rounded-2xl p-8 hover:translate-y-0">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+            GitHub integration
+          </p>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
+            GitHub App not configured
+          </h1>
+          <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-muted-foreground">
+            Your account is authorized, but the CodeSense GitHub App needs to be configured to access your repositories.
+          </p>
+          <div className="mt-8">
+            <Button
+              type="button"
+              onClick={() => router.push(routes.app.settings)}
+              className="h-11 min-w-48 gap-2 rounded-xl"
+            >
+              Go to Settings
+            </Button>
+          </div>
+        </div>
       </Card>
     );
   }

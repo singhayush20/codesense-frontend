@@ -20,5 +20,5 @@ export default async function GithubCallbackPage({
   const params = await searchParams;
   const installationId = getSingleSearchParamValue(params.installation_id);
 
-  return <ConnectingState installationId={installationId} />;
+  return <ConnectingState installationId={installationId} code={null} state={null} />;
 }

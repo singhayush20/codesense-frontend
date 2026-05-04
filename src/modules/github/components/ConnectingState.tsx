@@ -9,15 +9,20 @@ import { useGithub } from "@/modules/github/hooks/useGithub";
 
 interface ConnectingStateProps {
   installationId: string | null;
+  code: string | null;
+  state: string | null;
 }
 
-export function ConnectingState({ installationId }: ConnectingStateProps) {
+export function ConnectingState({ installationId, code, state }: ConnectingStateProps) {
   const router = useRouter();
   const hasStarted = useRef(false);
-  const { completeInstallation, connectGithub, error, isConnecting, isSyncing } = useGithub();
-  const missingInstallationError = installationId
-    ? null
-    : "GitHub did not return an installation id. You can restart the connection flow.";
+  const { completeOAuth, completeInstallation, connectGithub, error, isConnecting, isSyncing } =
+    useGithub();
+
+  const missingParamsError =
+    installationId || (code && state)
+      ? null
+      : "GitHub did not return the required parameters. You can restart the connection flow.";
 
   useEffect(() => {
     if (hasStarted.current) {
@@ -26,18 +31,25 @@ export function ConnectingState({ installationId }: ConnectingStateProps) {
 
     hasStarted.current = true;
 
-    if (!installationId) {
+    if (code && state) {
+      void completeOAuth(code, state).then((success) => {
+        if (success) {
+          router.replace(routes.app.settings);
+        }
+      });
       return;
     }
 
-    void completeInstallation(installationId).then((success) => {
-      if (success) {
-        router.replace(routes.app.repositories);
-      }
-    });
-  }, [completeInstallation, installationId, router]);
+    if (installationId) {
+      void completeInstallation(installationId).then((success) => {
+        if (success) {
+          router.replace(routes.app.repositories);
+        }
+      });
+    }
+  }, [completeOAuth, completeInstallation, code, state, installationId, router]);
 
-  const visibleError = missingInstallationError ?? error;
+  const visibleError = missingParamsError ?? error;
   const isWorking = isConnecting || isSyncing;
 
   return (
