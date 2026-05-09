@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { GitBranch, Loader2, Search, Unplug, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -46,6 +47,7 @@ export function RepoSelectionTable({
   onSelectedRepoIdsChange,
   onSync,
 }: RepoSelectionTableProps) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [isUnlinkMode, setIsUnlinkMode] = useState(false);
   const [tempUnselectIds, setTempUnselectIds] = useState<string[]>([]);
@@ -293,10 +295,19 @@ export function RepoSelectionTable({
                   return (
                     <TableRow
                       key={repository.id}
-                      className={cn((isSelected || isChecked) && "bg-primary/5 hover:bg-primary/10")}
+                      className={cn(
+                        "cursor-pointer transition-colors",
+                        (isSelected || isChecked) && "bg-primary/5 hover:bg-primary/10",
+                        !isUnlinkMode && "hover:bg-muted/50"
+                      )}
+                      onClick={() => {
+                        if (!isUnlinkMode) {
+                          router.push(`/repositories/${repository.id}`);
+                        }
+                      }}
                     >
                       {!isReadOnly || isUnlinkMode ? (
-                        <TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <Checkbox
                             aria-label={`Select ${repository.fullName}`}
                             checked={isChecked}

@@ -8,6 +8,17 @@ import type {
 } from "@/modules/llm/types/llm.types";
 
 const LLM_API_BASE = "/api/v1/llm";
+const REPO_API_BASE = "/api/v1/repos";
+
+interface RepositoryLLMConfig {
+  repoId: string;
+  providerId: string;
+  providerType: string;
+  displayName: string;
+  model: string;
+  isActive: boolean;
+  isValid: boolean;
+}
 
 class LLMApiError extends Error {
   constructor(message: string, readonly status?: number) {
@@ -90,6 +101,54 @@ export const llmApi = {
     return parseJsonResponse<{ success: boolean }>(
       response,
       "Failed to remove provider.",
+    );
+  },
+
+  async getRepositoryLLMConfig(repoId: string): Promise<RepositoryLLMConfig | null> {
+    try {
+      const response = await apiFetch(`${REPO_API_BASE}/${repoId}/llm-config`);
+      return await parseJsonResponse<RepositoryLLMConfig>(
+        response,
+        "Unable to load repository LLM configuration.",
+      );
+    } catch (error) {
+      if (error instanceof LLMApiError && error.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  async saveRepositoryLLMConfig(
+    repoId: string,
+    config: { providerId: string; model: string },
+  ): Promise<RepositoryLLMConfig> {
+    const response = await apiFetch(`${REPO_API_BASE}/${repoId}/llm-config`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(config),
+    });
+
+    return parseJsonResponse<RepositoryLLMConfig>(
+      response,
+      "Failed to save repository LLM configuration.",
+    );
+  },
+
+  async deleteRepositoryLLMConfig(repoId: string): Promise<{ success: boolean }> {
+    const response = await apiFetch(`${REPO_API_BASE}/${repoId}/llm-config`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new LLMApiError("Failed to delete repository LLM configuration.", response.status);
+    }
+
+    return parseJsonResponse<{ success: boolean }>(
+      response,
+      "Failed to delete configuration.",
     );
   },
 };
