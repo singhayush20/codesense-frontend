@@ -15,7 +15,7 @@ export function AuthPageFooter() {
           <Link href={routes.public.home} className="font-semibold text-foreground transition hover:text-primary">
             CodeSense
           </Link>
-          <p>Copyright 2024 CodeSense. Precision for the high-cognition developer.</p>
+          <p>Copyright 2024 CodeSense. Your personal AI code review platform.</p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4 text-muted-foreground">
           {footerLinks.map((link) => (

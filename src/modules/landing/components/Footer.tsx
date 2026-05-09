@@ -16,7 +16,7 @@ export default function Footer() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">CodeSense</p>
           <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-            Precision for the high-cognition developer. Built to help teams keep architecture, security, and velocity aligned.
+            Your personal AI Code Review Platform.
           </p>
         </div>
 
