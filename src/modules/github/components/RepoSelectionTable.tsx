@@ -30,7 +30,7 @@ interface RepoSelectionTableProps {
   onSave?: (repoIds: string[]) => Promise<void | boolean>;
   onUnselect?: (repoIds: string[]) => Promise<void | boolean>;
   onSelectedRepoIdsChange: (repoIds: string[]) => void;
-  onSync?: () => Promise<void | any>;
+  onSync?: () => Promise<void | unknown>;
 }
 
 export function RepoSelectionTable({

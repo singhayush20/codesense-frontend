@@ -1,10 +1,9 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { RepositoryConfig } from "@/modules/github/components";
 import { useGithub } from "@/modules/github/hooks/useGithub";
-import type { GithubRepository } from "@/modules/github/types/github.types";
 
 export default function RepositoryConfigPage() {
   const params = useParams();
@@ -12,13 +11,10 @@ export default function RepositoryConfigPage() {
   const repoId = params.repoId as string;
 
   const { repositories } = useGithub();
-  const [repository, setRepository] = useState<GithubRepository | null>(null);
-
-  useEffect(() => {
-    // Find repository by ID from the loaded repositories
-    const found = repositories.find((repo) => repo.id === repoId);
-    setRepository(found || null);
-  }, [repoId, repositories]);
+  const repository = useMemo(
+    () => repositories.find((repo) => repo.id === repoId) ?? null,
+    [repoId, repositories],
+  );
 
   const handleCancel = () => {
     router.back();

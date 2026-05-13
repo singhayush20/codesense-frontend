@@ -11,6 +11,7 @@ import type { GithubRepository } from "../types/github.types";
 import type { LLMProviderGroup } from "@/modules/llm/types/llm.types";
 import { llmApi } from "@/modules/llm/api/llm.api";
 import { DeleteConfigConfirmDialog } from "./DeleteConfigConfirmDialog";
+import { RepositoryPullRequests } from "./RepositoryPullRequests";
 
 interface RepositoryLLMConfig {
   repoId: string;
@@ -266,11 +267,7 @@ export function RepositoryConfig({
         )}
 
         {activeTab === "pull-requests" && (
-          <div className="space-y-4">
-            <p className="text-muted-foreground">
-              Pull requests content will be displayed here.
-            </p>
-          </div>
+          <RepositoryPullRequests repositoryId={repository.id} />
         )}
 
         {activeTab === "settings" && (

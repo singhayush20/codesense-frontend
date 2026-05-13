@@ -67,3 +67,39 @@ export interface GithubReposSelectResponse {
   count: number;
   repositories: GithubRepository[];
 }
+
+export enum PrState {
+  OPEN = "open",
+  CLOSED = "closed",
+  MERGED = "merged",
+}
+
+export interface GithubPullRequest {
+  id: string;
+  prNumber: number;
+  title: string;
+  author: string;
+  state: PrState;
+  changedFiles: number;
+  additions: number;
+  deletions: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GithubPullRequestsQuery {
+  page?: number;
+  limit?: number;
+  repositoryId?: string;
+  author?: string;
+  search?: string;
+  state?: PrState;
+}
+
+export interface GithubPullRequestsResponse {
+  items: GithubPullRequest[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

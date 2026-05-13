@@ -5,15 +5,17 @@ import type {
   GithubAccount,
   GithubAccountResponseDto,
   GithubInstallUrlResponse,
+  GithubPullRequestsQuery,
+  GithubPullRequestsResponse,
   GithubOAuthUrlResponse,
   GithubRepository,
   GithubReposSelectResponse,
-  GithubReposSyncRequest,
   GithubReposSyncResponse,
   HandleInstallationResponseDto,
 } from "@/modules/github/types/github.types";
 
 const GITHUB_API_BASE = "/api/v1/github";
+const PULL_REQUESTS_API_BASE = "/api/v1/pull-requests";
 
 class GithubApiError extends Error {
   constructor(message: string, readonly status?: number) {
@@ -144,6 +146,26 @@ export const githubApi = {
     return parseJsonResponse<GithubRepository[]>(
       response,
       "Unable to load selected repositories.",
+    );
+  },
+
+  async getPullRequests(
+    query: GithubPullRequestsQuery,
+  ): Promise<GithubPullRequestsResponse> {
+    const searchParams = new URLSearchParams();
+
+    if (query.page) searchParams.set("page", String(query.page));
+    if (query.limit) searchParams.set("limit", String(query.limit));
+    if (query.repositoryId) searchParams.set("repositoryId", query.repositoryId);
+    if (query.author?.trim()) searchParams.set("author", query.author.trim());
+    if (query.search?.trim()) searchParams.set("search", query.search.trim());
+    if (query.state) searchParams.set("state", query.state);
+
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}?${searchParams}`);
+
+    return parseJsonResponse<GithubPullRequestsResponse>(
+      response,
+      "Unable to load pull requests.",
     );
   },
 
