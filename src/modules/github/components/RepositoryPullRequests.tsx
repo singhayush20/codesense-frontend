@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   CalendarDays,
@@ -31,6 +32,7 @@ interface RepositoryPullRequestsProps {
 }
 
 export function RepositoryPullRequests({ repositoryId }: RepositoryPullRequestsProps) {
+  const router = useRouter();
   const [pullRequests, setPullRequests] = useState<GithubPullRequest[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -226,7 +228,13 @@ export function RepositoryPullRequests({ repositoryId }: RepositoryPullRequestsP
         ) : (
           <div className="divide-y divide-border/60">
             {pullRequests.map((pullRequest) => (
-              <PullRequestRow key={pullRequest.id} pullRequest={pullRequest} />
+              <PullRequestRow
+                key={pullRequest.id}
+                pullRequest={pullRequest}
+                onSelect={() =>
+                  router.push(`/repositories/${repositoryId}/pull-requests/${pullRequest.id}`)
+                }
+              />
             ))}
           </div>
         )}
@@ -264,9 +272,19 @@ export function RepositoryPullRequests({ repositoryId }: RepositoryPullRequestsP
   );
 }
 
-function PullRequestRow({ pullRequest }: { pullRequest: GithubPullRequest }) {
+function PullRequestRow({
+  pullRequest,
+  onSelect,
+}: {
+  pullRequest: GithubPullRequest;
+  onSelect: () => void;
+}) {
   return (
-    <article className="flex w-full flex-col gap-4 p-4 transition-colors hover:bg-muted/40">
+    <button
+      type="button"
+      onClick={onSelect}
+      className="flex w-full flex-col gap-4 p-4 text-left transition-colors hover:bg-muted/40"
+    >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-mono text-xs font-semibold text-muted-foreground">
@@ -299,7 +317,7 @@ function PullRequestRow({ pullRequest }: { pullRequest: GithubPullRequest }) {
           value={formatPullRequestDate(pullRequest.createdAt)}
         />
       </div>
-    </article>
+    </button>
   );
 }
 

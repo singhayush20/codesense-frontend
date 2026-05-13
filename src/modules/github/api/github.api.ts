@@ -5,6 +5,9 @@ import type {
   GithubAccount,
   GithubAccountResponseDto,
   GithubInstallUrlResponse,
+  GithubPullRequestDetails,
+  GithubPullRequestFileContent,
+  GithubPullRequestFilesResponse,
   GithubPullRequestsQuery,
   GithubPullRequestsResponse,
   GithubOAuthUrlResponse,
@@ -37,6 +40,24 @@ async function parseJsonResponse<T>(response: Response, fallbackMessage: string)
   }
 
   return body as T;
+}
+
+function isObjectWithStringId(value: unknown): value is { id: string } {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "id" in value &&
+    typeof value.id === "string"
+  );
+}
+
+function isObjectWithStringFileId(value: unknown): value is { fileId: string } {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "fileId" in value &&
+    typeof value.fileId === "string"
+  );
 }
 
 export const githubApi = {
@@ -167,6 +188,43 @@ export const githubApi = {
       response,
       "Unable to load pull requests.",
     );
+  },
+
+  async getPullRequest(id: string): Promise<GithubPullRequestDetails> {
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${id}`);
+    const data = await parseJsonResponse<unknown>(
+      response,
+      "Unable to load pull request details.",
+    );
+
+    if (!isObjectWithStringId(data)) {
+      throw new GithubApiError("Pull request was not found.", response.status);
+    }
+
+    return data as GithubPullRequestDetails;
+  },
+
+  async getPullRequestFiles(id: string): Promise<GithubPullRequestFilesResponse> {
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${id}/files`);
+
+    return parseJsonResponse<GithubPullRequestFilesResponse>(
+      response,
+      "Unable to load pull request files.",
+    );
+  },
+
+  async getPullRequestFileContent(fileId: string): Promise<GithubPullRequestFileContent> {
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/files/${fileId}/content`);
+    const data = await parseJsonResponse<unknown>(
+      response,
+      "Unable to load file content.",
+    );
+
+    if (!isObjectWithStringFileId(data)) {
+      throw new GithubApiError("File content was not found.", response.status);
+    }
+
+    return data as GithubPullRequestFileContent;
   },
 
   async signout(accountId: string): Promise<{ success: boolean }> {

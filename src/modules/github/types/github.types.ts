@@ -87,6 +87,33 @@ export interface GithubPullRequest {
   updatedAt: string;
 }
 
+export interface GithubPullRequestDetails extends GithubPullRequest {
+  baseBranch: string;
+  headBranch: string;
+  headSha: string;
+  commitCount: number;
+  mergedAt: string | null;
+}
+
+export interface GithubPullRequestFile {
+  id: string;
+  fileName: string;
+  status: string;
+  additions: number;
+  deletions: number;
+  patch?: string;
+}
+
+export interface GithubPullRequestFilesResponse {
+  files: GithubPullRequestFile[];
+}
+
+export interface GithubPullRequestFileContent {
+  fileId: string;
+  content: string;
+  sha: string;
+}
+
 export interface GithubPullRequestsQuery {
   page?: number;
   limit?: number;

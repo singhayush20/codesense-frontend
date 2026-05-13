@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "react-diff-view/style/index.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -24,6 +25,136 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --radius-md: var(--radius);
+}
+
+@layer components {
+  .codesense-diff {
+    --diff-background-color: var(--card);
+    --diff-text-color: var(--foreground);
+    --diff-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    --diff-gutter-insert-background-color: color-mix(in srgb, var(--color-success) 18%, var(--card));
+    --diff-gutter-delete-background-color: color-mix(in srgb, var(--color-danger) 18%, var(--card));
+    --diff-code-insert-background-color: color-mix(in srgb, var(--color-success) 12%, var(--card));
+    --diff-code-delete-background-color: color-mix(in srgb, var(--color-danger) 12%, var(--card));
+    --diff-code-insert-edit-background-color: color-mix(in srgb, var(--color-success) 28%, var(--card));
+    --diff-code-delete-edit-background-color: color-mix(in srgb, var(--color-danger) 28%, var(--card));
+    --diff-selection-background-color: color-mix(in srgb, var(--primary) 22%, transparent);
+    --diff-gutter-selected-background-color: color-mix(in srgb, var(--primary) 12%, var(--card));
+    --diff-code-selected-background-color: color-mix(in srgb, var(--primary) 12%, var(--card));
+  }
+
+  .codesense-diff,
+  .codesense-diff *,
+  .codesense-code,
+  .codesense-code * {
+    transition: none !important;
+  }
+
+  .codesense-diff .diff {
+    font-size: 12px;
+  }
+
+  .codesense-code pre,
+  .codesense-code code {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+  }
+
+  .codesense-diff .diff-gutter {
+    color: var(--muted-foreground);
+  }
+
+  .codesense-diff .diff-code {
+    word-break: normal;
+  }
+
+  .codesense-diff .token.keyword,
+  .codesense-code .token.keyword,
+  .codesense-diff .token.operator,
+  .codesense-code .token.operator {
+    color: #cf222e;
+  }
+
+  .codesense-diff .token.string,
+  .codesense-code .token.string,
+  .codesense-diff .token.attr-value,
+  .codesense-code .token.attr-value {
+    color: #0a6640;
+  }
+
+  .codesense-diff .token.function,
+  .codesense-code .token.function,
+  .codesense-diff .token.class-name,
+  .codesense-code .token.class-name {
+    color: #8250df;
+  }
+
+  .codesense-diff .token.number,
+  .codesense-code .token.number,
+  .codesense-diff .token.boolean,
+  .codesense-code .token.boolean,
+  .codesense-diff .token.constant,
+  .codesense-code .token.constant {
+    color: #0550ae;
+  }
+
+  .codesense-diff .token.property,
+  .codesense-code .token.property,
+  .codesense-diff .token.tag,
+  .codesense-code .token.tag,
+  .codesense-diff .token.attr-name,
+  .codesense-code .token.attr-name {
+    color: #116329;
+  }
+
+  .codesense-diff .token.comment,
+  .codesense-code .token.comment {
+    color: #6a737d;
+  }
+
+  .dark .codesense-diff .token.keyword,
+  .dark .codesense-code .token.keyword,
+  .dark .codesense-diff .token.operator,
+  .dark .codesense-code .token.operator {
+    color: #ff7b72;
+  }
+
+  .dark .codesense-diff .token.string,
+  .dark .codesense-code .token.string,
+  .dark .codesense-diff .token.attr-value,
+  .dark .codesense-code .token.attr-value {
+    color: #a5d6ff;
+  }
+
+  .dark .codesense-diff .token.function,
+  .dark .codesense-code .token.function,
+  .dark .codesense-diff .token.class-name,
+  .dark .codesense-code .token.class-name {
+    color: #d2a8ff;
+  }
+
+  .dark .codesense-diff .token.number,
+  .dark .codesense-code .token.number,
+  .dark .codesense-diff .token.boolean,
+  .dark .codesense-code .token.boolean,
+  .dark .codesense-diff .token.constant,
+  .dark .codesense-code .token.constant {
+    color: #79c0ff;
+  }
+
+  .dark .codesense-diff .token.property,
+  .dark .codesense-code .token.property,
+  .dark .codesense-diff .token.tag,
+  .dark .codesense-code .token.tag,
+  .dark .codesense-diff .token.attr-name,
+  .dark .codesense-code .token.attr-name {
+    color: #7ee787;
+  }
+
+  .dark .codesense-diff .token.comment,
+  .dark .codesense-code .token.comment {
+    color: #8b949e;
+  }
 }
 
 @layer base {
