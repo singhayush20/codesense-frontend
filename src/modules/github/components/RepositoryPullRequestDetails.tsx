@@ -21,21 +21,37 @@ import {
 import { Diff, Hunk, markEdits, parseDiff, tokenize } from "react-diff-view";
 import type { DiffType, FileData } from "react-diff-view";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import bashSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/bash";
 import css from "react-syntax-highlighter/dist/cjs/languages/prism/css";
+import dartSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/dart";
+import groovySyntax from "react-syntax-highlighter/dist/cjs/languages/prism/groovy";
+import javaSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/java";
 import jsSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
 import jsxSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/jsx";
 import jsonSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/json";
+import kotlinSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/kotlin";
 import markdownSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/markdown";
 import markupSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/markup";
+import propertiesSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/properties";
+import pythonSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/python";
+import tomlSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/toml";
 import tsxSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/tsx";
 import tsSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/typescript";
 import yamlSyntax from "react-syntax-highlighter/dist/cjs/languages/prism/yaml";
 import oneLight from "react-syntax-highlighter/dist/cjs/styles/prism/one-light";
 import refractor from "refractor";
+import bash from "refractor/lang/bash";
+import dart from "refractor/lang/dart";
+import groovy from "refractor/lang/groovy";
+import java from "refractor/lang/java";
 import javascript from "refractor/lang/javascript";
 import jsx from "refractor/lang/jsx";
 import json from "refractor/lang/json";
+import kotlin from "refractor/lang/kotlin";
 import markup from "refractor/lang/markup";
+import properties from "refractor/lang/properties";
+import python from "refractor/lang/python";
+import toml from "refractor/lang/toml";
 import tsx from "refractor/lang/tsx";
 import typescript from "refractor/lang/typescript";
 import yaml from "refractor/lang/yaml";
@@ -53,6 +69,8 @@ import { PrState } from "@/modules/github/types/github.types";
 registerRefractorLanguages();
 registerSyntaxHighlighterLanguages();
 
+type DiffViewMode = "unified" | "split";
+
 interface RepositoryPullRequestDetailsProps {
   repositoryId: string;
   pullRequestId: string;
@@ -66,6 +84,7 @@ export function RepositoryPullRequestDetails({
   const [details, setDetails] = useState<GithubPullRequestDetails | null>(null);
   const [files, setFiles] = useState<GithubPullRequestFile[]>([]);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [diffViewMode, setDiffViewMode] = useState<DiffViewMode>("unified");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -268,6 +287,8 @@ export function RepositoryPullRequestDetails({
           {selectedFile ? (
             <SelectedFileViewer
               file={selectedFile}
+              diffViewMode={diffViewMode}
+              onDiffViewModeChange={setDiffViewMode}
             />
           ) : (
             <div className="grid min-h-96 place-items-center p-8 text-center">
@@ -285,8 +306,12 @@ export function RepositoryPullRequestDetails({
 
 function SelectedFileViewer({
   file,
+  diffViewMode,
+  onDiffViewModeChange,
 }: {
   file: GithubPullRequestFile;
+  diffViewMode: DiffViewMode;
+  onDiffViewModeChange: (mode: DiffViewMode) => void;
 }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -304,15 +329,49 @@ function SelectedFileViewer({
 
       <div className="min-h-0 flex-1 overflow-auto p-4">
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">Diff</h3>
-          <GitDiffViewer file={file} />
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Diff</h3>
+            <div className="inline-flex w-fit rounded-lg border border-border/70 bg-background/60 p-1">
+              <button
+                type="button"
+                onClick={() => onDiffViewModeChange("unified")}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                  diffViewMode === "unified"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                Inline
+              </button>
+              <button
+                type="button"
+                onClick={() => onDiffViewModeChange("split")}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                  diffViewMode === "split"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                Side by side
+              </button>
+            </div>
+          </div>
+          <GitDiffViewer file={file} viewMode={diffViewMode} />
         </div>
       </div>
     </div>
   );
 }
 
-function GitDiffViewer({ file }: { file: GithubPullRequestFile }) {
+function GitDiffViewer({
+  file,
+  viewMode,
+}: {
+  file: GithubPullRequestFile;
+  viewMode: DiffViewMode;
+}) {
   const parsedFile = useMemo(() => parsePatch(file), [file]);
   const language = getLanguageFromFileName(file.fileName);
   const tokens = useMemo(() => {
@@ -341,7 +400,7 @@ function GitDiffViewer({ file }: { file: GithubPullRequestFile }) {
   return (
     <div className="codesense-diff overflow-auto rounded-lg border border-border/60">
       <Diff
-        viewType="unified"
+        viewType={viewMode}
         diffType={parsedFile.type as DiffType}
         hunks={parsedFile.hunks}
         tokens={tokens}
@@ -439,9 +498,31 @@ function parsePatch(file: GithubPullRequestFile): FileData | null {
 }
 
 function getLanguageFromFileName(fileName: string) {
-  const extension = fileName.split(".").pop()?.toLowerCase();
+  const normalizedName = fileName.replaceAll("\\", "/").split("/").pop()?.toLowerCase() ?? "";
+  const extension = normalizedName.split(".").pop();
+
+  if (normalizedName === "dockerfile") return "bash";
+  if (normalizedName === "pubspec.yaml" || normalizedName === "pubspec.yml") return "yaml";
+  if (normalizedName === "analysis_options.yaml") return "yaml";
+  if (normalizedName.endsWith(".gradle") || normalizedName.endsWith(".gradle.kts")) {
+    return "groovy";
+  }
 
   switch (extension) {
+    case "py":
+    case "pyw":
+    case "ipynb":
+      return "python";
+    case "java":
+      return "java";
+    case "dart":
+      return "dart";
+    case "kt":
+    case "kts":
+      return "kotlin";
+    case "groovy":
+    case "gvy":
+      return "groovy";
     case "ts":
       return "typescript";
     case "tsx":
@@ -461,25 +542,61 @@ function getLanguageFromFileName(fileName: string) {
       return "yaml";
     case "css":
       return "css";
+    case "scss":
+      return "css";
     case "md":
       return "markdown";
+    case "properties":
+      return "properties";
+    case "toml":
+      return "toml";
+    case "sh":
+    case "bash":
+    case "zsh":
+    case "env":
+      return "bash";
     default:
       return "text";
   }
 }
 
-function isSupportedDiffLanguage(language: string): language is "typescript" | "tsx" | "javascript" | "jsx" | "json" | "markup" | "yaml" {
-  return ["typescript", "tsx", "javascript", "jsx", "json", "markup", "yaml"].includes(language);
+function isSupportedDiffLanguage(language: string) {
+  return [
+    "bash",
+    "css",
+    "dart",
+    "groovy",
+    "java",
+    "javascript",
+    "jsx",
+    "json",
+    "kotlin",
+    "markup",
+    "properties",
+    "python",
+    "toml",
+    "tsx",
+    "typescript",
+    "yaml",
+  ].includes(language);
 }
 
 function registerRefractorLanguages() {
   try {
+    refractor.register(bash);
+    refractor.register(dart);
+    refractor.register(groovy);
+    refractor.register(java);
     refractor.register(markup);
     refractor.register(javascript);
     refractor.register(jsx);
+    refractor.register(kotlin);
     refractor.register(typescript);
     refractor.register(tsx);
     refractor.register(json);
+    refractor.register(properties);
+    refractor.register(python);
+    refractor.register(toml);
     refractor.register(yaml);
   } catch {
     // Refractor throws when a language is registered twice during hot reload.
@@ -487,12 +604,20 @@ function registerRefractorLanguages() {
 }
 
 function registerSyntaxHighlighterLanguages() {
+  SyntaxHighlighter.registerLanguage("bash", bashSyntax);
   SyntaxHighlighter.registerLanguage("css", css);
+  SyntaxHighlighter.registerLanguage("dart", dartSyntax);
+  SyntaxHighlighter.registerLanguage("groovy", groovySyntax);
+  SyntaxHighlighter.registerLanguage("java", javaSyntax);
   SyntaxHighlighter.registerLanguage("javascript", jsSyntax);
   SyntaxHighlighter.registerLanguage("jsx", jsxSyntax);
   SyntaxHighlighter.registerLanguage("json", jsonSyntax);
+  SyntaxHighlighter.registerLanguage("kotlin", kotlinSyntax);
   SyntaxHighlighter.registerLanguage("markdown", markdownSyntax);
   SyntaxHighlighter.registerLanguage("markup", markupSyntax);
+  SyntaxHighlighter.registerLanguage("properties", propertiesSyntax);
+  SyntaxHighlighter.registerLanguage("python", pythonSyntax);
+  SyntaxHighlighter.registerLanguage("toml", tomlSyntax);
   SyntaxHighlighter.registerLanguage("tsx", tsxSyntax);
   SyntaxHighlighter.registerLanguage("typescript", tsSyntax);
   SyntaxHighlighter.registerLanguage("yaml", yamlSyntax);
