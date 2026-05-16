@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { GitBranch, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { routes } from "@/config/routes";
 
 export function EmptyDashboard() {

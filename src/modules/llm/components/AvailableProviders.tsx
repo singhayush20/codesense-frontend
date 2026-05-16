@@ -1,7 +1,5 @@
 "use client";
 
-import { Package, Brain, Cloud, Zap } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { AvailableProviderInfo, ProviderType } from "@/modules/llm/types/llm.types";
 

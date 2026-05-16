@@ -1,11 +1,9 @@
 "use client";
 
-import { Eye, EyeOff, Plus, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card } from "@/components/ui/Card";
-import type { ProviderType } from "@/modules/llm/types/llm.types";
 
 interface AddKeyDialogProps {
   isOpen: boolean;

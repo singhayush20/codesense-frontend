@@ -2,7 +2,6 @@
 
 import { ChevronDown, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import type { LLMProviderGroup, ProviderType } from "@/modules/llm/types/llm.types";
