@@ -3,7 +3,7 @@
 import { Package, Brain, Cloud, Zap } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import type { AvailableProviderInfo, ProviderType } from "@/modules/llm/types/llm.types";
+import { AvailableProviderInfo, ProviderType } from "@/modules/llm/types/llm.types";
 
 interface AvailableProvidersProps {
   selectedProvider: ProviderType | null;
@@ -14,28 +14,28 @@ interface AvailableProvidersProps {
 
 const AVAILABLE_PROVIDERS: AvailableProviderInfo[] = [
   {
-    id: "ollama",
+    id: ProviderType.OLLAMA,
     name: "Ollama",
     description: "Run powerful large language models locally with a simple, unified interface.",
     icon: "🏠",
     category: "LOCAL ENGINE",
   },
   {
-    id: "gemini",
+    id: ProviderType.GEMINI,
     name: "Gemini",
     description: "Google's most capable AI model for highly complex multi-modal tasks.",
     icon: "✨",
     category: "CLOUD API",
   },
   {
-    id: "bedrock",
+    id: ProviderType.BEDROCK,
     name: "AWS Bedrock",
     description: "Build generative AI applications on AWS with foundational models via API.",
     icon: "📦",
     category: "ENTERPRISE",
   },
   {
-    id: "nvidia",
+    id: ProviderType.NVIDIA,
     name: "Nvidia",
     description: "Optimized LLM inference endpoints utilizing Nvidia's massive GPU clusters.",
     icon: "⚡",
