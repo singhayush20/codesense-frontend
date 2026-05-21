@@ -296,12 +296,13 @@ export function RepoSelectionTable({
                     <TableRow
                       key={repository.id}
                       className={cn(
-                        "cursor-pointer transition-colors",
+                        selectedOnly && !isUnlinkMode && "cursor-pointer",
+                        "transition-colors",
                         (isSelected || isChecked) && "bg-primary/5 hover:bg-primary/10",
-                        !isUnlinkMode && "hover:bg-muted/50"
+                        !isUnlinkMode && selectedOnly && "hover:bg-muted/50"
                       )}
                       onClick={() => {
-                        if (!isUnlinkMode) {
+                        if (selectedOnly && !isUnlinkMode) {
                           router.push(`/repositories/${repository.id}`);
                         }
                       }}

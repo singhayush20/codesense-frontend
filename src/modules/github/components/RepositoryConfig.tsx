@@ -34,7 +34,7 @@ export function RepositoryConfig({
   repository,
   onCancel,
 }: RepositoryConfigProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("settings");
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [isEditMode, setIsEditMode] = useState(false);
   
   // Current config state

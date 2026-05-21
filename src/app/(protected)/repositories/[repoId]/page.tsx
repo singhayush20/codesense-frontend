@@ -17,7 +17,7 @@ export default function RepositoryConfigPage() {
   );
 
   const handleCancel = () => {
-    router.back();
+    router.replace("/repositories?view=selected");
   };
 
   if (!repository) {

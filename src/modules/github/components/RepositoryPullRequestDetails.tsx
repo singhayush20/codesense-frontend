@@ -182,6 +182,7 @@ export function RepositoryPullRequestDetails({
           <div className="min-w-0">
             <Link
               href={`/repositories/${repositoryId}`}
+              replace={true}
               className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <ArrowLeft className="size-4" aria-hidden="true" />
