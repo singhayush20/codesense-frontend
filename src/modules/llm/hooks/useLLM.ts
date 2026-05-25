@@ -38,7 +38,12 @@ export function useLLM() {
   }, [showSnackbar]);
 
   const addProvider = useCallback(
-    async (providerType: ProviderType, displayName: string, apiKey: string): Promise<boolean> => {
+    async (
+      providerType: ProviderType,
+      displayName: string,
+      apiKey: string,
+      baseUrl?: string,
+    ): Promise<boolean> => {
       setIsAddingProvider(true);
       setError(null);
 
@@ -50,7 +55,7 @@ export function useLLM() {
         });
 
         // Step 2: Add credentials
-        await llmApi.addCredentials(provider.id, apiKey);
+        await llmApi.addCredentials(provider.id, apiKey, baseUrl);
 
         // Reload providers
         await loadProviders();

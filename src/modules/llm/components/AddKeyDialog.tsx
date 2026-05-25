@@ -5,11 +5,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+import { ProviderType } from "@/modules/llm/types/llm.types";
+
 interface AddKeyDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (displayName: string, apiKey: string) => Promise<void>;
+  onSubmit: (displayName: string, apiKey: string, baseUrl?: string) => Promise<void>;
   providerName: string;
+  providerType?: ProviderType;
   isLoading: boolean;
 }
 
@@ -18,13 +21,17 @@ export function AddKeyDialog({
   onClose,
   onSubmit,
   providerName,
+  providerType,
   isLoading,
 }: AddKeyDialogProps) {
   const [step, setStep] = useState<"name" | "key">("name");
   const [displayName, setDisplayName] = useState("");
   const [apiKey, setApiKey] = useState("");
+  const [baseUrl, setBaseUrl] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isOllama = providerType === ProviderType.OLLAMA || providerName.toLowerCase() === "ollama";
 
   const handleNext = () => {
     if (step === "name" && displayName.trim()) {
@@ -33,13 +40,21 @@ export function AddKeyDialog({
   };
 
   const handleSubmit = async () => {
-    if (!apiKey.trim() || !displayName.trim()) return;
+    if (!displayName.trim()) return;
+
+    // Validation logic: Ollama needs Base URL, others need API Key
+    if (isOllama) {
+      if (!baseUrl.trim()) return;
+    } else {
+      if (!apiKey.trim()) return;
+    }
 
     setIsSubmitting(true);
     try {
-      await onSubmit(displayName, apiKey);
+      await onSubmit(displayName, apiKey.trim(), isOllama ? baseUrl.trim() : undefined);
       setDisplayName("");
       setApiKey("");
+      setBaseUrl("");
       setShowKey(false);
       setStep("name");
       onClose();
@@ -55,6 +70,7 @@ export function AddKeyDialog({
   const handleClose = () => {
     setDisplayName("");
     setApiKey("");
+    setBaseUrl("");
     setShowKey(false);
     setStep("name");
     onClose();
@@ -84,7 +100,9 @@ export function AddKeyDialog({
             <p className="mt-2 text-sm text-muted-foreground">
               {step === "name"
                 ? "Give this configuration a memorable name"
-                : "Enter your API key"}
+                : isOllama 
+                  ? "Enter your API key and Base URL"
+                  : "Enter your API key"}
             </p>
           </div>
 
@@ -123,36 +141,66 @@ export function AddKeyDialog({
                 </p>
               </div>
 
-              {/* API Key Input */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">API Key</label>
-                <div className="relative">
-                  <Input
-                    type={showKey ? "text" : "password"}
-                    placeholder="Paste your API key here"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    disabled={isSubmitting}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && apiKey.trim()) {
-                        handleSubmit();
-                      }
-                    }}
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={isSubmitting}
-                  >
-                    {showKey ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
-                  </button>
+              <div className="space-y-4">
+                {/* API Key Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    API Key {isOllama && <span className="text-xs font-normal text-muted-foreground">(Optional)</span>}
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showKey ? "text" : "password"}
+                      placeholder={isOllama ? "Optional for local instances" : "Paste your API key here"}
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      disabled={isSubmitting}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          if (isOllama) {
+                            if (baseUrl.trim()) handleSubmit();
+                          } else if (apiKey.trim()) {
+                            handleSubmit();
+                          }
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowKey(!showKey)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={isSubmitting}
+                    >
+                      {showKey ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Base URL Input (Ollama only) */}
+                {isOllama && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Base URL</label>
+                    <Input
+                      type="url"
+                      placeholder="e.g., http://localhost:11434"
+                      value={baseUrl}
+                      onChange={(e) => setBaseUrl(e.target.value)}
+                      disabled={isSubmitting}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && baseUrl.trim()) {
+                          handleSubmit();
+                        }
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      The URL where your Ollama instance is running.
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -185,7 +233,9 @@ export function AddKeyDialog({
               disabled={
                 step === "name"
                   ? !displayName.trim() || isLoading
-                  : !apiKey.trim() || isLoading || isSubmitting
+                  : isOllama
+                    ? !baseUrl.trim() || isLoading || isSubmitting
+                    : !apiKey.trim() || isLoading || isSubmitting
               }
             >
               {step === "name" 

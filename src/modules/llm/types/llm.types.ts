@@ -30,6 +30,7 @@ export interface AddLLMProviderRequest {
   providerType: ProviderType;
   displayName: string;
   apiKey: string;
+  baseUrl?: string;
 }
 
 export interface AddLLMProviderResponse {

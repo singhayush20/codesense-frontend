@@ -49,10 +49,10 @@ export function LLMProviderTab() {
     }
   };
 
-  const handleAddKeySubmit = async (displayName: string, apiKey: string) => {
+  const handleAddKeySubmit = async (displayName: string, apiKey: string, baseUrl?: string) => {
     if (!selectedProvider) return;
 
-    const success = await addProvider(selectedProvider, displayName, apiKey);
+    const success = await addProvider(selectedProvider, displayName, apiKey, baseUrl);
 
     if (success) {
       setSelectedProvider(null);
@@ -107,6 +107,7 @@ export function LLMProviderTab() {
         onClose={() => setIsAddKeyDialogOpen(false)}
         onSubmit={handleAddKeySubmit}
         providerName={selectedProvider ? PROVIDER_NAMES[selectedProvider] : ""}
+        providerType={selectedProvider || undefined}
         isLoading={isAddingProvider}
       />
     </div>
