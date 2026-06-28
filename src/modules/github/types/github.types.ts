@@ -114,6 +114,37 @@ export interface GithubPullRequestFileContent {
   sha: string;
 }
 
+export enum PullRequestReviewStatus {
+  SUCCESS = "success",
+  FAILED = "failed",
+  IN_PROGRESS = "in_progress",
+  CANCELLED = "cancelled",
+  SUPERSEDED = "superseded",
+}
+
+export interface GithubCodeReviewComment {
+  filePath: string;
+  startLine: number;
+  endLine: number;
+  severity: string;
+  category: string;
+  message: string;
+}
+
+export interface GithubCodeReviewRun {
+  runId: string;
+  provider: string;
+  pullRequestId: string;
+  reviewStatus: PullRequestReviewStatus;
+  totalInputTokens: number | null;
+  totalOutputTokens: number | null;
+  totalTokens: number | null;
+  summary: string | null;
+  headSha: string | null;
+  baseSha: string | null;
+  comments: GithubCodeReviewComment[];
+}
+
 export interface GithubPullRequestsQuery {
   page?: number;
   limit?: number;

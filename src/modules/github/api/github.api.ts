@@ -4,6 +4,7 @@ import { apiFetch } from "@/lib/api";
 import type {
   GithubAccount,
   GithubAccountResponseDto,
+  GithubCodeReviewRun,
   GithubInstallUrlResponse,
   GithubPullRequestDetails,
   GithubPullRequestFileContent,
@@ -210,6 +211,15 @@ export const githubApi = {
     return parseJsonResponse<GithubPullRequestFilesResponse>(
       response,
       "Unable to load pull request files.",
+    );
+  },
+
+  async getPullRequestReviews(id: string): Promise<GithubCodeReviewRun[]> {
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${id}/reviews`);
+
+    return parseJsonResponse<GithubCodeReviewRun[]>(
+      response,
+      "Unable to load pull request reviews.",
     );
   },
 
