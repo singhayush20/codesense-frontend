@@ -14,6 +14,7 @@ import {
   GitCommit,
   GitPullRequest,
   Loader2,
+  MessageSquareText,
   Minus,
   Plus,
   RefreshCw,
@@ -60,7 +61,9 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { githubApi } from "@/modules/github/api/github.api";
+import { CodeReviewsPanel } from "@/modules/github/components/CodeReviewsPanel";
 import type {
+  GithubCodeReviewRun,
   GithubPullRequestDetails,
   GithubPullRequestFile,
 } from "@/modules/github/types/github.types";
@@ -83,6 +86,7 @@ export function RepositoryPullRequestDetails({
   const router = useRouter();
   const [details, setDetails] = useState<GithubPullRequestDetails | null>(null);
   const [files, setFiles] = useState<GithubPullRequestFile[]>([]);
+  const [reviews, setReviews] = useState<GithubCodeReviewRun[]>([]);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [diffViewMode, setDiffViewMode] = useState<DiffViewMode>("unified");
   const [isLoading, setIsLoading] = useState(true);
@@ -97,15 +101,18 @@ export function RepositoryPullRequestDetails({
       setError(null);
 
       try {
-        const [detailsResponse, filesResponse] = await Promise.all([
-          githubApi.getPullRequest(pullRequestId),
-          githubApi.getPullRequestFiles(pullRequestId),
-        ]);
+        const [detailsResponse, filesResponse, reviewsResponse] =
+          await Promise.all([
+            githubApi.getPullRequest(pullRequestId),
+            githubApi.getPullRequestFiles(pullRequestId),
+            githubApi.getPullRequestReviews(pullRequestId),
+          ]);
 
         if (controller.signal.aborted) return;
 
         setDetails(detailsResponse);
         setFiles(filesResponse.files);
+        setReviews(reviewsResponse);
         setSelectedFileId(filesResponse.files[0]?.id ?? null);
       } catch (loadError) {
         if (controller.signal.aborted) return;
@@ -117,6 +124,7 @@ export function RepositoryPullRequestDetails({
         );
         setDetails(null);
         setFiles([]);
+        setReviews([]);
         setSelectedFileId(null);
       } finally {
         if (!controller.signal.aborted) {
@@ -176,8 +184,9 @@ export function RepositoryPullRequestDetails({
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] min-h-0 flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-border/70 bg-card/40 px-5 py-4 backdrop-blur-xl">
+    <div className="flex flex-col">
+      <div className="flex h-[calc(100dvh-8rem)] shrink-0 flex-col">
+        <div className="shrink-0 border-b border-border/70 bg-card/40 px-5 py-4 backdrop-blur-xl">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0">
             <Link
@@ -301,6 +310,17 @@ export function RepositoryPullRequestDetails({
           )}
         </section>
       </main>
+    </div>
+
+      <section className="border-t border-border/70 px-5 py-6">
+        <div className="flex items-center gap-2">
+          <MessageSquareText className="size-5 text-primary" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-foreground">Code Reviews</h2>
+        </div>
+        <div className="mt-4">
+          <CodeReviewsPanel reviews={reviews} />
+        </div>
+      </section>
     </div>
   );
 }
