@@ -28,13 +28,13 @@ interface RepositoryConfigProps {
   onCancel?: () => void;
 }
 
-type TabType = "overview" | "pull-requests" | "settings";
+type TabType = "pull-requests" | "settings";
 
 export function RepositoryConfig({
   repository,
   onCancel,
 }: RepositoryConfigProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [activeTab, setActiveTab] = useState<TabType>("pull-requests");
   const [isEditMode, setIsEditMode] = useState(false);
   
   // Current config state
@@ -194,7 +194,6 @@ export function RepositoryConfig({
       modelName !== (currentConfig?.model ?? ""));
 
   const tabs: Array<{ id: TabType; label: string }> = [
-    { id: "overview", label: "Overview" },
     { id: "pull-requests", label: "Pull Requests" },
     { id: "settings", label: "Settings" },
   ];
@@ -258,13 +257,7 @@ export function RepositoryConfig({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        {activeTab === "overview" && (
-          <div className="space-y-4">
-            <p className="text-muted-foreground">
-              Overview content will be displayed here.
-            </p>
-          </div>
-        )}
+
 
         {activeTab === "pull-requests" && (
           <RepositoryPullRequests repositoryId={repository.id} />
