@@ -1,31 +1,48 @@
-﻿import Link from "next/link";
+﻿import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-
-const links = [
-  { label: "Privacy Policy", href: "#privacy" },
-  { label: "Terms of Service", href: "#terms" },
-  { label: "Security", href: "#security" },
-  { label: "Status", href: "#status" },
-  { label: "Contact", href: "#contact" },
-];
+import { Sparkles } from "lucide-react";
 
 export default function Footer() {
   return (
     <footer className="border-t border-border/70 bg-background/80 py-12">
       <Container className="flex flex-col gap-10 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">CodeSense</p>
-          <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-            Your personal AI Code Review Platform.
-          </p>
+        <div className="flex items-center gap-3">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">CodeSense</p>
+            <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
+              AI-powered code review, your way.
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {links.map((link) => (
-            <Link key={link.label} href={link.href} className="transition hover:text-foreground">
-              {link.label}
-            </Link>
-          ))}
+        <div className="flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
+          <a
+            href="https://github.com/singhayush20/codesense-frontend"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:opacity-80"
+          >
+            <Image
+              src="/github.png"
+              alt="GitHub"
+              width={40}
+              height={40}
+              className="inline-block"
+            />
+          </a>
+          <span className="text-border" aria-hidden="true">/</span>
+          <span>
+            Built by{" "}
+            <a
+              href="https://www.ayushsinghtech.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground transition hover:text-primary"
+            >
+              Ayush Singh
+            </a>
+          </span>
         </div>
       </Container>
     </footer>

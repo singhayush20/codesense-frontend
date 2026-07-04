@@ -17,8 +17,8 @@ export default function Hero() {
     <SectionWrapper className="relative overflow-hidden pb-6 pt-10">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_top,var(--color-accent-soft),transparent_52%)]" />
       <Container className="relative">
-        <div className="grid min-w-0 gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div className="max-w-2xl min-w-0">
+        <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="max-w-2xl">
             <Badge className="mb-6">Open & Customizable Code Reviews</Badge>
             <div className="space-y-8">
               <div className="space-y-5">

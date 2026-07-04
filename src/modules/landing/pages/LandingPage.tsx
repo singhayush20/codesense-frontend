@@ -10,7 +10,7 @@ import {
 
 export function LandingPage() {
   return (
-    <main className="bg-background text-foreground">
+    <main className="bg-background text-foreground overflow-x-hidden">
       <Navbar />
       <Hero />
       <Features />

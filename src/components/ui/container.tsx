@@ -5,7 +5,7 @@ export function Container({ className, ...props }: HTMLAttributes<HTMLDivElement
   return (
     <div
       className={cn(
-        "mx-auto w-full min-w-0 max-w-7xl px-6 sm:px-8 lg:px-12",
+        "mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12",
         className,
       )}
       {...props}
