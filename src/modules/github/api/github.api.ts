@@ -205,6 +205,22 @@ export const githubApi = {
     return data as GithubPullRequestDetails;
   },
 
+  async syncPullRequest(id: string): Promise<GithubPullRequestDetails> {
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${id}/sync`, {
+      method: "POST",
+    });
+    const data = await parseJsonResponse<unknown>(
+      response,
+      "Unable to sync pull request.",
+    );
+
+    if (!isObjectWithStringId(data)) {
+      throw new GithubApiError("Pull request was not found.", response.status);
+    }
+
+    return data as GithubPullRequestDetails;
+  },
+
   async getPullRequestFiles(id: string): Promise<GithubPullRequestFilesResponse> {
     const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${id}/files`);
 

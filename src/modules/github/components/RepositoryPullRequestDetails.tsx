@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -60,7 +60,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
-import { githubApi } from "@/modules/github/api/github.api";
+import { githubApi, GithubApiError } from "@/modules/github/api/github.api";
 import { CodeReviewsPanel } from "@/modules/github/components/CodeReviewsPanel";
 import type {
   GithubCodeReviewRun,
@@ -92,6 +92,44 @@ export function RepositoryPullRequestDetails({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    setSyncError(null);
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+
+    try {
+      await githubApi.syncPullRequest(pullRequestId);
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to sync pull request:", err);
+      const isNotFoundError = err instanceof GithubApiError && err.status === 404;
+      const errorMessage = err instanceof Error ? err.message : "Unable to sync pull request.";
+      if (isNotFoundError) {
+        setError("Pull request was not found.");
+      } else {
+        setSyncError(errorMessage);
+        syncTimeoutRef.current = setTimeout(() => {
+          setSyncError(null);
+        }, 5000);
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -214,6 +252,26 @@ export function RepositoryPullRequestDetails({
                 {details.headBranch} {"->"} {details.baseBranch}
               </span>
             </p>
+          </div>
+
+          <div className="flex flex-col items-start gap-2 shrink-0 xl:items-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="gap-2 font-medium transition-all hover:bg-muted/80"
+            >
+              <RefreshCw className={cn("size-3.5", isSyncing && "animate-spin")} aria-hidden="true" />
+              {isSyncing ? "Syncing..." : "Sync PR"}
+            </Button>
+            {syncError && (
+              <span className="text-xs text-destructive flex items-center gap-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                <AlertCircle className="size-3.5" aria-hidden="true" />
+                {syncError}
+              </span>
+            )}
           </div>
         </div>
 
