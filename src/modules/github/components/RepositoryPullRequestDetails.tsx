@@ -95,8 +95,16 @@ export function RepositoryPullRequestDetails({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncAbortControllerRef = useRef<AbortController | null>(null);
 
   const handleSync = async () => {
+    if (syncAbortControllerRef.current) {
+      syncAbortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    syncAbortControllerRef.current = controller;
+
     setIsSyncing(true);
     setSyncError(null);
     if (syncTimeoutRef.current) {
@@ -104,9 +112,11 @@ export function RepositoryPullRequestDetails({
     }
 
     try {
-      await githubApi.syncPullRequest(pullRequestId);
+      await githubApi.syncPullRequest(pullRequestId, controller.signal);
+      if (controller.signal.aborted) return;
       window.location.reload();
     } catch (err) {
+      if (controller.signal.aborted) return;
       console.error("Failed to sync pull request:", err);
 
       if (err instanceof GithubApiError && err.status === 404) {
@@ -134,10 +144,14 @@ export function RepositoryPullRequestDetails({
 
       setSyncError(friendlyMessage);
       syncTimeoutRef.current = setTimeout(() => {
-        setSyncError(null);
+        if (!controller.signal.aborted) {
+          setSyncError(null);
+        }
       }, 5000);
     } finally {
-      setIsSyncing(false);
+      if (!controller.signal.aborted) {
+        setIsSyncing(false);
+      }
     }
   };
 
@@ -145,6 +159,9 @@ export function RepositoryPullRequestDetails({
     return () => {
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
+      }
+      if (syncAbortControllerRef.current) {
+        syncAbortControllerRef.current.abort();
       }
     };
   }, []);

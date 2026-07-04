@@ -205,9 +205,13 @@ export const githubApi = {
     return data as GithubPullRequestDetails;
   },
 
-  async syncPullRequest(id: string): Promise<GithubPullRequestDetails> {
-    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${id}/sync`, {
+  async syncPullRequest(id: string, signal?: AbortSignal): Promise<GithubPullRequestDetails> {
+    if (!id || typeof id !== "string" || !/^[a-zA-Z0-9-]+$/.test(id)) {
+      throw new GithubApiError("Invalid pull request ID format.", 400);
+    }
+    const response = await apiFetch(`${PULL_REQUESTS_API_BASE}/${encodeURIComponent(id)}/sync`, {
       method: "POST",
+      signal,
     });
     const data = await parseJsonResponse<unknown>(
       response,
