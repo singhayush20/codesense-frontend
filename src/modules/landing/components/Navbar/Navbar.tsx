@@ -1,14 +1,13 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { routes } from "@/config/routes";
 import { ThemeToggle } from "@/modules/theme/components/ThemeToggle";
 import NavbarClient from "./NavbarClient";
 
 const navigationItems = [
+  { label: "How It Works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
-  { label: "Documentation", href: "#docs" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Enterprise", href: "#enterprise" },
+  { label: "Why CodeSense", href: "#why-codesense" },
 ] as const;
 
 export default function Navbar() {

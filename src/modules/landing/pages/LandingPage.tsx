@@ -1,22 +1,20 @@
-﻿import {
+import {
   Cta,
   Features,
   Footer,
   Hero,
-  Metrics,
   Navbar,
-  Personas,
+  WhyCodeSense,
   Workflow,
 } from "../components/index";
 
 export function LandingPage() {
   return (
-    <main className="bg-background text-foreground">
+    <main className="bg-background text-foreground overflow-x-hidden">
       <Navbar />
       <Hero />
-      <Metrics />
       <Features />
-      <Personas />
+      <WhyCodeSense />
       <Workflow />
       <Cta />
       <Footer />
