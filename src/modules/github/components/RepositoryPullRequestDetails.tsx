@@ -108,16 +108,34 @@ export function RepositoryPullRequestDetails({
       window.location.reload();
     } catch (err) {
       console.error("Failed to sync pull request:", err);
-      const isNotFoundError = err instanceof GithubApiError && err.status === 404;
-      const errorMessage = err instanceof Error ? err.message : "Unable to sync pull request.";
-      if (isNotFoundError) {
+
+      if (err instanceof GithubApiError && err.status === 404) {
         setError("Pull request was not found.");
-      } else {
-        setSyncError(errorMessage);
-        syncTimeoutRef.current = setTimeout(() => {
-          setSyncError(null);
-        }, 5000);
+        return;
       }
+
+      let friendlyMessage = "Unable to sync pull request. Please try again.";
+      if (err instanceof GithubApiError) {
+        if (err.status === 403 || err.status === 401) {
+          friendlyMessage = "Access denied. Please check your permissions or log in again.";
+        } else if (err.status === 429) {
+          friendlyMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (err.status && err.status >= 500) {
+          friendlyMessage = "A server error occurred. Please try again later.";
+        } else if (err.message && err.message !== "Internal server error") {
+          friendlyMessage = err.message;
+        }
+      } else if (err instanceof Error) {
+        const lowerMessage = err.message.toLowerCase();
+        if (lowerMessage.includes("fetch") || lowerMessage.includes("network")) {
+          friendlyMessage = "Network error. Please check your internet connection.";
+        }
+      }
+
+      setSyncError(friendlyMessage);
+      syncTimeoutRef.current = setTimeout(() => {
+        setSyncError(null);
+      }, 5000);
     } finally {
       setIsSyncing(false);
     }
