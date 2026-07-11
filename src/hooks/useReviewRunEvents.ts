@@ -11,9 +11,12 @@ export function useReviewRunEvents(runId: string | null) {
   useEffect(() => {
     if (!runId) return;
 
-    const es = new EventSource(`/api/backend/review-runs/${runId}/events`, {
-      withCredentials: true,
-    });
+    const es = new EventSource(
+      `/api/backend/api/v1/review-runs/${runId}/events`,
+      {
+        withCredentials: true,
+      },
+    );
     eventSourceRef.current = es;
 
     es.onopen = () => setConnected(true);
