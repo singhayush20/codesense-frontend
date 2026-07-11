@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 import { githubApi } from "@/modules/github/api/github.api";
 import { WorkflowRunCard } from "@/modules/github/components/WorkflowRunCard";
+import { ReviewWorkflowTimeline } from "@/components/review-workflow/ReviewWorkflowTimeline";
+import { useReviewRunEvents } from "@/hooks/useReviewRunEvents";
 
 interface CodeReviewsPanelProps {
   reviews: GithubCodeReviewRun[];
@@ -321,6 +323,17 @@ export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
   const selectedRun =
     reviews.find((r) => r.runId === selectedRunId) ?? null;
 
+  const { events: sseEvents, connected: sseConnected } = useReviewRunEvents(
+    activeTab === "workflow" && selectedRun
+      ? selectedRun.runId
+      : null,
+  );
+
+  const isLiveWorkflow =
+    activeTab === "workflow" &&
+    selectedRun &&
+    selectedRun.reviewStatus === PullRequestReviewStatus.IN_PROGRESS;
+
   const fetchWorkflow = useCallback(async (runId: string) => {
     if (workflowFetchRef.current === runId) return;
     workflowFetchRef.current = runId;
@@ -443,7 +456,15 @@ export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
               </div>
             </div>
           ) : workflowData[selectedRun.runId] ? (
-            <WorkflowRunCard workflow={workflowData[selectedRun.runId]} />
+            isLiveWorkflow ? (
+              <ReviewWorkflowTimeline
+                workflow={workflowData[selectedRun.runId]}
+                liveEvents={sseEvents}
+                connected={sseConnected}
+              />
+            ) : (
+              <WorkflowRunCard workflow={workflowData[selectedRun.runId]} />
+            )
           ) : (
             <div className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-border/60 bg-card/40">
               <div className="flex flex-col items-center gap-2">
