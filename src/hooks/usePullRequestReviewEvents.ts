@@ -12,7 +12,7 @@ export function usePullRequestReviewEvents(pullRequestId: string | null) {
     if (!pullRequestId) return;
 
     const es = new EventSource(
-      `/api/backend/pull-requests/${pullRequestId}/reviews/events`,
+      `/api/backend/api/v1/pull-requests/${pullRequestId}/reviews/events`,
       { withCredentials: true },
     );
     eventSourceRef.current = es;
@@ -33,9 +33,6 @@ export function usePullRequestReviewEvents(pullRequestId: string | null) {
 
     const eventTypes = [
       "RUN_CREATED",
-      "STEP_STARTED",
-      "STEP_COMPLETED",
-      "STEP_FAILED",
       "RUN_COMPLETED",
       "RUN_FAILED",
       "RUN_CANCELLED",
