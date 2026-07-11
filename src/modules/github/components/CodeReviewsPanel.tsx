@@ -1,20 +1,31 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
   FileCode2,
+  Inbox,
+  ListChecks,
   Loader2,
   MessageSquare,
   XCircle,
 } from "lucide-react";
 import type { GithubCodeReviewRun } from "@/modules/github/types/github.types";
 import { PullRequestReviewStatus } from "@/modules/github/types/github.types";
+import type { ReviewWorkflowResponse } from "@/modules/github/types/github.types";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
+import { githubApi } from "@/modules/github/api/github.api";
+import { ReviewWorkflowTimeline } from "@/components/review-workflow/ReviewWorkflowTimeline";
+import { usePullRequestReviewEvents } from "@/hooks/usePullRequestReviewEvents";
+import { useReviewRunEvents } from "@/hooks/useReviewRunEvents";
+import { getRunStatusFromEvents } from "@/utils/workflowMerge";
 
 interface CodeReviewsPanelProps {
   reviews: GithubCodeReviewRun[];
+  pullRequestId: string;
+  onNewRun?: () => void;
+  onReviewUpdate?: (runId: string, status: PullRequestReviewStatus) => void;
 }
 
 const severityConfig: Record<
@@ -298,12 +309,163 @@ function CommentsPanel({ run }: { run: GithubCodeReviewRun }) {
   );
 }
 
-export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
+export function CodeReviewsPanel({
+  reviews,
+  pullRequestId,
+  onNewRun,
+  onReviewUpdate,
+}: CodeReviewsPanelProps) {
   const [selectedRunId, setSelectedRunId] = useState<string>(
     reviews.length > 0 ? reviews[0].runId : "",
   );
+  const [activeTab, setActiveTab] = useState<"comments" | "workflow">("comments");
+  const [workflowData, setWorkflowData] = useState<
+    Record<string, ReviewWorkflowResponse>
+  >({});
+  const [workflowEmpty, setWorkflowEmpty] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [isLoadingWorkflow, setIsLoadingWorkflow] = useState(false);
+  const [workflowError, setWorkflowError] = useState<string | null>(null);
+  const workflowFetchRef = useRef<string | null>(null);
+  const currentRunIdRef = useRef<string | null>(null);
+  const processedEventCountRef = useRef(0);
+
   const selectedRun =
     reviews.find((r) => r.runId === selectedRunId) ?? null;
+
+  const isTerminalStatus =
+    selectedRun &&
+    (selectedRun.reviewStatus === PullRequestReviewStatus.SUCCESS ||
+      selectedRun.reviewStatus === PullRequestReviewStatus.FAILED ||
+      selectedRun.reviewStatus === PullRequestReviewStatus.CANCELLED ||
+      selectedRun.reviewStatus === PullRequestReviewStatus.SUPERSEDED);
+
+  const { events: prEvents } = usePullRequestReviewEvents(pullRequestId);
+
+  const { events: runEvents, connected: sseConnected } = useReviewRunEvents(
+    activeTab === "workflow" && selectedRun && !isTerminalStatus
+      ? selectedRun.runId
+      : null,
+  );
+
+  const sseEvents = useMemo(() => {
+    const fromRunLevel = runEvents;
+    const fromPrLevel = prEvents.filter((e) => e.data?.runId === selectedRun?.runId && e.type !== "RUN_CREATED");
+    const seen = new Set<string>();
+    return [...fromRunLevel, ...fromPrLevel].filter((e) => {
+      const key = `${e.type}-${e.data?.step ?? ""}-${e.data?.timestamp ?? ""}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [runEvents, prEvents, selectedRun?.runId]);
+
+  useEffect(() => {
+    if (!onNewRun || prEvents.length <= processedEventCountRef.current) return;
+    const newEvents = prEvents.slice(processedEventCountRef.current);
+    processedEventCountRef.current = prEvents.length;
+    const shouldReload = newEvents.some(
+      (e) =>
+        e.type === "RUN_CREATED" ||
+        e.type === "RUN_COMPLETED" ||
+        e.type === "RUN_FAILED" ||
+        e.type === "RUN_CANCELLED" ||
+        e.type === "RUN_SUPERSEDED",
+    );
+    if (shouldReload) {
+      onNewRun();
+    }
+  }, [prEvents, onNewRun]);
+
+  useEffect(() => {
+    processedEventCountRef.current = 0;
+  }, [pullRequestId]);
+
+  const runStatusFromSse = useMemo(
+    () => getRunStatusFromEvents(sseEvents),
+    [sseEvents],
+  );
+
+  const effectiveRunStatus = selectedRun
+    ? (runStatusFromSse.status as PullRequestReviewStatus | null) ??
+      selectedRun.reviewStatus
+    : null;
+
+  const isLiveWorkflow =
+    activeTab === "workflow" &&
+    selectedRun &&
+    effectiveRunStatus === PullRequestReviewStatus.IN_PROGRESS;
+
+  const fetchWorkflow = useCallback(async (runId: string) => {
+    if (workflowFetchRef.current === runId) return;
+    workflowFetchRef.current = runId;
+    currentRunIdRef.current = selectedRunId;
+
+    setIsLoadingWorkflow(true);
+    setWorkflowError(null);
+
+    try {
+      const data = await githubApi.getReviewWorkflowRun(runId);
+      if (currentRunIdRef.current !== runId) return;
+      if (!data.steps || data.steps.length === 0) {
+        setWorkflowEmpty((prev) => new Set(prev).add(runId));
+        return;
+      }
+      setWorkflowData((prev) => ({ ...prev, [runId]: data }));
+    } catch {
+      if (currentRunIdRef.current === runId) {
+        setWorkflowEmpty((prev) => new Set(prev).add(runId));
+      }
+    } finally {
+      if (currentRunIdRef.current === runId) {
+        setIsLoadingWorkflow(false);
+      }
+      if (workflowFetchRef.current === runId) {
+        workflowFetchRef.current = null;
+      }
+    }
+  }, [selectedRunId]);
+
+  useEffect(() => {
+    if (activeTab === "workflow" && selectedRun) {
+      const runId = selectedRun.runId;
+      if (
+        !(runId in workflowData) &&
+        !workflowEmpty.has(runId)
+      ) {
+        fetchWorkflow(runId);
+      }
+    }
+  }, [activeTab, selectedRun, workflowData, workflowEmpty, fetchWorkflow]);
+
+  useEffect(() => {
+    if (!runStatusFromSse.status || !selectedRun) return;
+    const newStatus = runStatusFromSse.status as PullRequestReviewStatus;
+    if (newStatus === PullRequestReviewStatus.IN_PROGRESS) return;
+
+    onReviewUpdate?.(selectedRun.runId, newStatus);
+
+    const current = workflowData[selectedRun.runId];
+    if (current && current.run.status !== newStatus) {
+      setWorkflowData((prev) => {
+        const existing = prev[selectedRun.runId];
+        if (!existing) return prev;
+        return {
+          ...prev,
+          [selectedRun.runId]: {
+            ...existing,
+            run: { ...existing.run, status: newStatus },
+          },
+        };
+      });
+    }
+  }, [runStatusFromSse, selectedRun, workflowData, onReviewUpdate]);
+
+  const handleSelectRun = useCallback((runId: string) => {
+    setSelectedRunId(runId);
+    setActiveTab("comments");
+  }, []);
 
   if (reviews.length === 0) {
     return (
@@ -328,20 +490,84 @@ export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
               key={run.runId}
               run={run}
               isSelected={run.runId === selectedRunId}
-              onSelect={() => setSelectedRunId(run.runId)}
+              onSelect={() => handleSelectRun(run.runId)}
             />
           ))}
         </div>
       </div>
 
       {selectedRun ? (
-        <div className="flex min-h-0 flex-1 flex-col">
-          <CommentsPanel run={selectedRun} />
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
+          <div className="flex shrink-0 items-center gap-1 rounded-xl border border-border/50 bg-card/30 p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("comments")}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                activeTab === "comments"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <MessageSquare className="size-3.5" />
+              Comments
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("workflow")}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                activeTab === "workflow"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <ListChecks className="size-3.5" />
+              Workflow
+            </button>
+          </div>
+
+          {activeTab === "comments" ? (
+            <CommentsPanel run={selectedRun} />
+          ) : isLoadingWorkflow ? (
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-border/60 bg-card/40">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Loading workflow run...
+                </p>
+              </div>
+            </div>
+          ) : workflowError ? (
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5">
+              <div className="flex flex-col items-center gap-2 px-4 text-center">
+                <XCircle className="size-5 text-destructive" />
+                <p className="text-sm text-destructive">
+                  {workflowError}
+                </p>
+              </div>
+            </div>
+          ) : workflowData[selectedRun.runId] ? (
+            <ReviewWorkflowTimeline
+              workflow={workflowData[selectedRun.runId]}
+              liveEvents={sseEvents}
+              connected={isLiveWorkflow ? sseConnected : undefined}
+            />
+          ) : (
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-border/60 bg-card/40">
+              <div className="flex flex-col items-center gap-2">
+                <Inbox className="size-6 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  No workflow data available for this run.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-border/60 bg-card/40">
           <p className="text-sm text-muted-foreground">
-            Select a review run to view comments.
+            Select a review run to view details.
           </p>
         </div>
       )}

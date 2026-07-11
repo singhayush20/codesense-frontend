@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -67,7 +67,7 @@ import type {
   GithubPullRequestDetails,
   GithubPullRequestFile,
 } from "@/modules/github/types/github.types";
-import { PrState } from "@/modules/github/types/github.types";
+import { PrState, PullRequestReviewStatus } from "@/modules/github/types/github.types";
 
 registerRefractorLanguages();
 registerSyntaxHighlighterLanguages();
@@ -92,6 +92,7 @@ export function RepositoryPullRequestDetails({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [reviewsReloadKey, setReviewsReloadKey] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -166,6 +167,15 @@ export function RepositoryPullRequestDetails({
     };
   }, []);
 
+  const onReviewUpdate = useCallback(
+    (runId: string, status: PullRequestReviewStatus) => {
+      setReviews((prev) =>
+        prev.map((r) => (r.runId === runId ? { ...r, reviewStatus: status } : r)),
+      );
+    },
+    [],
+  );
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -174,18 +184,15 @@ export function RepositoryPullRequestDetails({
       setError(null);
 
       try {
-        const [detailsResponse, filesResponse, reviewsResponse] =
-          await Promise.all([
-            githubApi.getPullRequest(pullRequestId),
-            githubApi.getPullRequestFiles(pullRequestId),
-            githubApi.getPullRequestReviews(pullRequestId),
-          ]);
+        const [detailsResponse, filesResponse] = await Promise.all([
+          githubApi.getPullRequest(pullRequestId),
+          githubApi.getPullRequestFiles(pullRequestId),
+        ]);
 
         if (controller.signal.aborted) return;
 
         setDetails(detailsResponse);
         setFiles(filesResponse.files);
-        setReviews(reviewsResponse);
         setSelectedFileId(filesResponse.files[0]?.id ?? null);
       } catch (loadError) {
         if (controller.signal.aborted) return;
@@ -197,7 +204,6 @@ export function RepositoryPullRequestDetails({
         );
         setDetails(null);
         setFiles([]);
-        setReviews([]);
         setSelectedFileId(null);
       } finally {
         if (!controller.signal.aborted) {
@@ -210,6 +216,28 @@ export function RepositoryPullRequestDetails({
 
     return () => controller.abort();
   }, [pullRequestId, reloadKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadReviews() {
+      try {
+        const reviewsResponse = await githubApi.getPullRequestReviews(
+          pullRequestId,
+        );
+        if (controller.signal.aborted) return;
+        setReviews(reviewsResponse);
+      } catch {
+        if (!controller.signal.aborted) {
+          setReviews([]);
+        }
+      }
+    }
+
+    void loadReviews();
+
+    return () => controller.abort();
+  }, [pullRequestId, reviewsReloadKey]);
 
   const selectedFile = files.find((file) => file.id === selectedFileId) ?? null;
 
@@ -411,7 +439,12 @@ export function RepositoryPullRequestDetails({
           <h2 className="text-lg font-semibold text-foreground">Code Reviews</h2>
         </div>
         <div className="mt-4">
-          <CodeReviewsPanel reviews={reviews} />
+          <CodeReviewsPanel
+            reviews={reviews}
+            pullRequestId={pullRequestId}
+            onNewRun={() => setReviewsReloadKey((k) => k + 1)}
+            onReviewUpdate={onReviewUpdate}
+          />
         </div>
       </section>
     </div>

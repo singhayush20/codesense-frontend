@@ -16,10 +16,12 @@ import type {
   GithubReposSelectResponse,
   GithubReposSyncResponse,
   HandleInstallationResponseDto,
+  ReviewWorkflowResponse,
 } from "@/modules/github/types/github.types";
 
 const GITHUB_API_BASE = "/api/v1/github";
 const PULL_REQUESTS_API_BASE = "/api/v1/pull-requests";
+const REVIEW_RUNS_API_BASE = "/api/v1/review-runs";
 
 class GithubApiError extends Error {
   constructor(message: string, readonly status?: number) {
@@ -255,6 +257,17 @@ export const githubApi = {
     }
 
     return data as GithubPullRequestFileContent;
+  },
+
+  async getReviewWorkflowRun(runId: string): Promise<ReviewWorkflowResponse> {
+    const response = await apiFetch(
+      `${REVIEW_RUNS_API_BASE}/${encodeURIComponent(runId)}/workflow`,
+    );
+
+    return parseJsonResponse<ReviewWorkflowResponse>(
+      response,
+      "Unable to load review workflow run.",
+    );
   },
 
   async signout(accountId: string): Promise<{ success: boolean }> {
