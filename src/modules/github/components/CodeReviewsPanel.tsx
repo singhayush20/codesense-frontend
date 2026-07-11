@@ -25,6 +25,7 @@ interface CodeReviewsPanelProps {
   reviews: GithubCodeReviewRun[];
   pullRequestId: string;
   onNewRun?: () => void;
+  onReviewUpdate?: (runId: string, status: PullRequestReviewStatus) => void;
 }
 
 const severityConfig: Record<
@@ -308,7 +309,12 @@ function CommentsPanel({ run }: { run: GithubCodeReviewRun }) {
   );
 }
 
-export function CodeReviewsPanel({ reviews, pullRequestId, onNewRun }: CodeReviewsPanelProps) {
+export function CodeReviewsPanel({
+  reviews,
+  pullRequestId,
+  onNewRun,
+  onReviewUpdate,
+}: CodeReviewsPanelProps) {
   const [selectedRunId, setSelectedRunId] = useState<string>(
     reviews.length > 0 ? reviews[0].runId : "",
   );
@@ -438,6 +444,8 @@ export function CodeReviewsPanel({ reviews, pullRequestId, onNewRun }: CodeRevie
     const newStatus = runStatusFromSse.status as PullRequestReviewStatus;
     if (newStatus === PullRequestReviewStatus.IN_PROGRESS) return;
 
+    onReviewUpdate?.(selectedRun.runId, newStatus);
+
     const current = workflowData[selectedRun.runId];
     if (current && current.run.status !== newStatus) {
       setWorkflowData((prev) => {
@@ -452,7 +460,7 @@ export function CodeReviewsPanel({ reviews, pullRequestId, onNewRun }: CodeRevie
         };
       });
     }
-  }, [runStatusFromSse, selectedRun, workflowData]);
+  }, [runStatusFromSse, selectedRun, workflowData, onReviewUpdate]);
 
   const handleSelectRun = useCallback((runId: string) => {
     setSelectedRunId(runId);
