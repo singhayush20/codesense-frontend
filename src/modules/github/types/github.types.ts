@@ -145,6 +145,39 @@ export interface GithubCodeReviewRun {
   comments: GithubCodeReviewComment[];
 }
 
+export enum ReviewWorkflowStepStatus {
+  PENDING = "pending",
+  RUNNING = "running",
+  SUCCESS = "success",
+  FAILED = "failed",
+  CANCELLED = "cancelled",
+  SKIPPED = "skipped",
+}
+
+export interface ReviewWorkflowStep {
+  step: string;
+  status: ReviewWorkflowStepStatus;
+  startedAt: string | null;
+  completedAt: string | null;
+  durationMs: number | null;
+  errorMessage: string | null;
+}
+
+export interface ReviewWorkflowRun {
+  runId: string;
+  status: PullRequestReviewStatus;
+  provider: string;
+  pullRequestId: string;
+  headSha: string | null;
+  baseSha: string | null;
+  createdAt: string;
+}
+
+export interface ReviewWorkflowResponse {
+  run: ReviewWorkflowRun;
+  steps: ReviewWorkflowStep[];
+}
+
 export interface GithubPullRequestsQuery {
   page?: number;
   limit?: number;
