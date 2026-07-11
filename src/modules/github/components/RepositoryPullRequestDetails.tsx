@@ -411,7 +411,11 @@ export function RepositoryPullRequestDetails({
           <h2 className="text-lg font-semibold text-foreground">Code Reviews</h2>
         </div>
         <div className="mt-4">
-          <CodeReviewsPanel reviews={reviews} />
+          <CodeReviewsPanel
+            reviews={reviews}
+            pullRequestId={pullRequestId}
+            onNewRun={() => setReloadKey((k) => k + 1)}
+          />
         </div>
       </section>
     </div>

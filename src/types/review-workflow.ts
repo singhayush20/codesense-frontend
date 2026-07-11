@@ -14,23 +14,23 @@ export type ReviewWorkflowRun = GithubReviewWorkflowRun;
 export type ReviewWorkflowResponse = GithubReviewWorkflowResponse;
 
 export const WORKFLOW_STEP_ORDER = [
-  "INITIALIZING",
-  "FETCHING_PULL_REQUEST",
-  "BUILDING_REVIEW_CONTEXT",
-  "GENERATING_REVIEW",
-  "SAVING_RESULTS",
-  "COMPLETED",
+  "initializing",
+  "fetching_pull_request",
+  "building_review_context",
+  "generating_review",
+  "saving_results",
+  "completed",
 ] as const;
 
 export type ReviewWorkflowStepName = typeof WORKFLOW_STEP_ORDER[number];
 
 export const STEP_LABELS: Record<string, string> = {
-  INITIALIZING: "Initializing",
-  FETCHING_PULL_REQUEST: "Fetching Pull Request",
-  BUILDING_REVIEW_CONTEXT: "Building Review Context",
-  GENERATING_REVIEW: "Generating Review",
-  SAVING_RESULTS: "Saving Results",
-  COMPLETED: "Completed",
+  initializing: "Initializing",
+  fetching_pull_request: "Fetching Pull Request",
+  building_review_context: "Building Review Context",
+  generating_review: "Generating Review",
+  saving_results: "Saving Results",
+  completed: "Completed",
 };
 
 export interface SSEEvent {

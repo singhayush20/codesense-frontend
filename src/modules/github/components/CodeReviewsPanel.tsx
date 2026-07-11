@@ -16,12 +16,15 @@ import type { ReviewWorkflowResponse } from "@/modules/github/types/github.types
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 import { githubApi } from "@/modules/github/api/github.api";
-import { WorkflowRunCard } from "@/modules/github/components/WorkflowRunCard";
 import { ReviewWorkflowTimeline } from "@/components/review-workflow/ReviewWorkflowTimeline";
+import { usePullRequestReviewEvents } from "@/hooks/usePullRequestReviewEvents";
 import { useReviewRunEvents } from "@/hooks/useReviewRunEvents";
+import { getRunStatusFromEvents } from "@/utils/workflowMerge";
 
 interface CodeReviewsPanelProps {
   reviews: GithubCodeReviewRun[];
+  pullRequestId: string;
+  onNewRun?: () => void;
 }
 
 const severityConfig: Record<
@@ -305,7 +308,7 @@ function CommentsPanel({ run }: { run: GithubCodeReviewRun }) {
   );
 }
 
-export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
+export function CodeReviewsPanel({ reviews, pullRequestId, onNewRun }: CodeReviewsPanelProps) {
   const [selectedRunId, setSelectedRunId] = useState<string>(
     reviews.length > 0 ? reviews[0].runId : "",
   );
@@ -319,44 +322,104 @@ export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
   const [isLoadingWorkflow, setIsLoadingWorkflow] = useState(false);
   const [workflowError, setWorkflowError] = useState<string | null>(null);
   const workflowFetchRef = useRef<string | null>(null);
+  const currentRunIdRef = useRef<string | null>(null);
+  const processedEventCountRef = useRef(0);
 
   const selectedRun =
     reviews.find((r) => r.runId === selectedRunId) ?? null;
 
-  const { events: sseEvents, connected: sseConnected } = useReviewRunEvents(
-    activeTab === "workflow" && selectedRun
+  const isTerminalStatus =
+    selectedRun &&
+    (selectedRun.reviewStatus === PullRequestReviewStatus.SUCCESS ||
+      selectedRun.reviewStatus === PullRequestReviewStatus.FAILED ||
+      selectedRun.reviewStatus === PullRequestReviewStatus.CANCELLED ||
+      selectedRun.reviewStatus === PullRequestReviewStatus.SUPERSEDED);
+
+  const { events: prEvents } = usePullRequestReviewEvents(pullRequestId);
+
+  const { events: runEvents, connected: sseConnected } = useReviewRunEvents(
+    activeTab === "workflow" && selectedRun && !isTerminalStatus
       ? selectedRun.runId
       : null,
   );
 
+  const sseEvents = useMemo(() => {
+    const fromRunLevel = runEvents;
+    const fromPrLevel = prEvents.filter((e) => e.data?.runId === selectedRun?.runId && e.type !== "RUN_CREATED");
+    const seen = new Set<string>();
+    return [...fromRunLevel, ...fromPrLevel].filter((e) => {
+      const key = `${e.type}-${e.data?.step ?? ""}-${e.data?.timestamp ?? ""}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [runEvents, prEvents, selectedRun?.runId]);
+
+  useEffect(() => {
+    if (!onNewRun || prEvents.length <= processedEventCountRef.current) return;
+    const newEvents = prEvents.slice(processedEventCountRef.current);
+    processedEventCountRef.current = prEvents.length;
+    const shouldReload = newEvents.some(
+      (e) =>
+        e.type === "RUN_CREATED" ||
+        e.type === "RUN_COMPLETED" ||
+        e.type === "RUN_FAILED" ||
+        e.type === "RUN_CANCELLED" ||
+        e.type === "RUN_SUPERSEDED",
+    );
+    if (shouldReload) {
+      onNewRun();
+    }
+  }, [prEvents, onNewRun]);
+
+  useEffect(() => {
+    processedEventCountRef.current = 0;
+  }, [pullRequestId]);
+
+  const runStatusFromSse = useMemo(
+    () => getRunStatusFromEvents(sseEvents),
+    [sseEvents],
+  );
+
+  const effectiveRunStatus = selectedRun
+    ? (runStatusFromSse.status as PullRequestReviewStatus | null) ??
+      selectedRun.reviewStatus
+    : null;
+
   const isLiveWorkflow =
     activeTab === "workflow" &&
     selectedRun &&
-    selectedRun.reviewStatus === PullRequestReviewStatus.IN_PROGRESS;
+    effectiveRunStatus === PullRequestReviewStatus.IN_PROGRESS;
 
   const fetchWorkflow = useCallback(async (runId: string) => {
     if (workflowFetchRef.current === runId) return;
     workflowFetchRef.current = runId;
+    currentRunIdRef.current = selectedRunId;
 
     setIsLoadingWorkflow(true);
     setWorkflowError(null);
 
     try {
       const data = await githubApi.getReviewWorkflowRun(runId);
+      if (currentRunIdRef.current !== runId) return;
       if (!data.steps || data.steps.length === 0) {
         setWorkflowEmpty((prev) => new Set(prev).add(runId));
         return;
       }
       setWorkflowData((prev) => ({ ...prev, [runId]: data }));
     } catch {
-      setWorkflowEmpty((prev) => new Set(prev).add(runId));
+      if (currentRunIdRef.current === runId) {
+        setWorkflowEmpty((prev) => new Set(prev).add(runId));
+      }
     } finally {
-      setIsLoadingWorkflow(false);
+      if (currentRunIdRef.current === runId) {
+        setIsLoadingWorkflow(false);
+      }
       if (workflowFetchRef.current === runId) {
         workflowFetchRef.current = null;
       }
     }
-  }, []);
+  }, [selectedRunId]);
 
   useEffect(() => {
     if (activeTab === "workflow" && selectedRun) {
@@ -369,6 +432,27 @@ export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
       }
     }
   }, [activeTab, selectedRun, workflowData, workflowEmpty, fetchWorkflow]);
+
+  useEffect(() => {
+    if (!runStatusFromSse.status || !selectedRun) return;
+    const newStatus = runStatusFromSse.status as PullRequestReviewStatus;
+    if (newStatus === PullRequestReviewStatus.IN_PROGRESS) return;
+
+    const current = workflowData[selectedRun.runId];
+    if (current && current.run.status !== newStatus) {
+      setWorkflowData((prev) => {
+        const existing = prev[selectedRun.runId];
+        if (!existing) return prev;
+        return {
+          ...prev,
+          [selectedRun.runId]: {
+            ...existing,
+            run: { ...existing.run, status: newStatus },
+          },
+        };
+      });
+    }
+  }, [runStatusFromSse, selectedRun, workflowData]);
 
   const handleSelectRun = useCallback((runId: string) => {
     setSelectedRunId(runId);
@@ -456,15 +540,11 @@ export function CodeReviewsPanel({ reviews }: CodeReviewsPanelProps) {
               </div>
             </div>
           ) : workflowData[selectedRun.runId] ? (
-            isLiveWorkflow ? (
-              <ReviewWorkflowTimeline
-                workflow={workflowData[selectedRun.runId]}
-                liveEvents={sseEvents}
-                connected={sseConnected}
-              />
-            ) : (
-              <WorkflowRunCard workflow={workflowData[selectedRun.runId]} />
-            )
+            <ReviewWorkflowTimeline
+              workflow={workflowData[selectedRun.runId]}
+              liveEvents={sseEvents}
+              connected={isLiveWorkflow ? sseConnected : undefined}
+            />
           ) : (
             <div className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-border/60 bg-card/40">
               <div className="flex flex-col items-center gap-2">
