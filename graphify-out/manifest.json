@@ -1,0 +1,350 @@
+{
+  "D:\\WebFrontend\\codesense-frontend\\eslint.config.mjs": {
+    "mtime": 1775329214.989532,
+    "hash": "dfa1f5f6a7037bf39dc510f30b180002"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\next-env.d.ts": {
+    "mtime": 1777730855.3869886,
+    "hash": "d0f8375ae1199dc7acd3977fc33b78b8"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\next.config.ts": {
+    "mtime": 1775329215.1183147,
+    "hash": "9b77af189a21a7a64e4bd7a426f64176"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\postcss.config.mjs": {
+    "mtime": 1775329215.0202007,
+    "hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\proxy.ts": {
+    "mtime": 1775496766.2251132,
+    "hash": "1c26c30ffcd2337af2132f69d12f13e0"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\layout.tsx": {
+    "mtime": 1776277062.9872234,
+    "hash": "791ba44d79314931add569de2c1a7348"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\providers.tsx": {
+    "mtime": 1776274826.887514,
+    "hash": "1fd2a318004dd6274a2cf5901bc398d7"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(auth)\\layout.tsx": {
+    "mtime": 1775499402.4337656,
+    "hash": "185297e008697d35866caa0f9e660405"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(auth)\\login\\page.tsx": {
+    "mtime": 1776708529.5210943,
+    "hash": "d6a6279b7758b3a9691d74b4dbab8151"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\layout.tsx": {
+    "mtime": 1775496707.016837,
+    "hash": "e82b845762ec028ebbc61d9b74256a28"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\dashboard\\page.tsx": {
+    "mtime": 1777928695.401677,
+    "hash": "768b5c40a5db1d908732b7115da228f8"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\github\\callback\\page.tsx": {
+    "mtime": 1777928695.402672,
+    "hash": "36423d0cb84cf49050598430b0be0db5"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\github\\oauth\\callback\\page.tsx": {
+    "mtime": 1777928695.4036832,
+    "hash": "cf3b9a6bc8baf1ef88b5be659a65db9a"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\profile\\page.tsx": {
+    "mtime": 1775499925.1569567,
+    "hash": "f8a78ef8097a4ed9e7a15275914d1036"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\repositories\\page.tsx": {
+    "mtime": 1777928695.4036832,
+    "hash": "f86d854cfb11f9774a35bb25334da046"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(protected)\\settings\\page.tsx": {
+    "mtime": 1778093633.56235,
+    "hash": "0f2bbf4f507dbb3c1e409eeaf1eab21d"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\(public)\\page.tsx": {
+    "mtime": 1777734676.93898,
+    "hash": "544b2943d43d4ae4edad6b6badf9f3de"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\api\\backend\\[...backendPath]\\route.ts": {
+    "mtime": 1776708529.5221834,
+    "hash": "a65aac9dbb6bf74d8573b90048773fe9"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\auth\\google\\callback\\route.ts": {
+    "mtime": 1776708529.5232525,
+    "hash": "ad19ff7c60c357983c456dde4ab4720d"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\auth\\google\\start\\route.ts": {
+    "mtime": 1775411102.2737193,
+    "hash": "549cdc3151b58c19f62ea368d90f2532"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\auth\\logout\\route.ts": {
+    "mtime": 1776708529.5237854,
+    "hash": "594cda6cd913a2961e446f335e0501a1"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\app\\auth\\refresh\\route.ts": {
+    "mtime": 1776708529.5248475,
+    "hash": "8af84fdf06841e04923b9d7c792421b8"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Badge.tsx": {
+    "mtime": 1775499551.6855228,
+    "hash": "201306415a27459f313d649670dfa6d2"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Button.tsx": {
+    "mtime": 1775329771.7729733,
+    "hash": "daafd007acc8e344a1c557ae9287fe14"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Card.tsx": {
+    "mtime": 1775499551.6855228,
+    "hash": "df54129982551b825d13be31c763b04c"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Checkbox.tsx": {
+    "mtime": 1777714682.2115169,
+    "hash": "42608beead123342046c75c31dbaf691"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Container.tsx": {
+    "mtime": 1775330877.0766032,
+    "hash": "f51ccb7489cdbdb4183dc92ebb32c1e0"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\IconBox.tsx": {
+    "mtime": 1775499551.6855228,
+    "hash": "11b49f2e976976c43ad695561ac162d9"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Input.tsx": {
+    "mtime": 1777714682.2115169,
+    "hash": "dc23b96fad75402d0216d817256acb27"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\SectionWrapper.tsx": {
+    "mtime": 1775330438.9822652,
+    "hash": "6f2f06b94617ce5a7b0a881a52bb1e76"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\components\\ui\\Table.tsx": {
+    "mtime": 1777714682.2115169,
+    "hash": "3b8abe63584f0f54807efa1cf32c2d16"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\config\\env.ts": {
+    "mtime": 1775411102.2706015,
+    "hash": "c80f3fcd4fb27d5db342f37b74b67875"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\config\\routes.ts": {
+    "mtime": 1777714682.2130275,
+    "hash": "cab04b0670e45d7e09890d0e2b3f1859"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\config\\site.ts": {
+    "mtime": 1775365495.182344,
+    "hash": "edb775dd0792c62d922a257999bb9e29"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\lib\\api.ts": {
+    "mtime": 1776708529.525899,
+    "hash": "1e3cbebdc4eafed43dba14b95917a315"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\lib\\constants.ts": {
+    "mtime": 1776708529.525899,
+    "hash": "b966764c7a7844f2649a03fd071b4ed5"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\lib\\utils.ts": {
+    "mtime": 1775329743.101377,
+    "hash": "5a6fd53fdcf2be529e9cc0b718fde352"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\lib\\validations.ts": {
+    "mtime": 1775365542.531355,
+    "hash": "c32488319a30554a8b00d5f4b7a3be09"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\app-shell\\components\\Header.tsx": {
+    "mtime": 1775499741.1657312,
+    "hash": "134464c70c92517d13a3b4aee0583a77"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\app-shell\\components\\ProtectedLayoutShell.tsx": {
+    "mtime": 1776708526.0515637,
+    "hash": "c88231f69766485533f3a57d466d45cf"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\app-shell\\components\\Sidebar.tsx": {
+    "mtime": 1777714682.2140403,
+    "hash": "3efc5fff65078221f7459ce7533bf931"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\events.ts": {
+    "mtime": 1776708529.5284426,
+    "hash": "e0d813d373c7db506c33001f37b5f01f"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\types.ts": {
+    "mtime": 1776708529.531682,
+    "hash": "52179b05e07b7f475fe66e1395b455f5"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\utils.ts": {
+    "mtime": 1776708529.5327382,
+    "hash": "dfcaff22a843577d27503e6e42412574"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\components\\AuthPageFooter.tsx": {
+    "mtime": 1776711373.6787207,
+    "hash": "6786250d1f3bd9c7113119d03c7dfe72"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\components\\AuthSnackbar.tsx": {
+    "mtime": 1776708529.525899,
+    "hash": "172cb1836fce065ef133a5d793b11371"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\components\\Divider.tsx": {
+    "mtime": 1775499925.1524363,
+    "hash": "6024fc2f66a0965a62a7220d50e60d10"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\components\\LoginCard.tsx": {
+    "mtime": 1776711337.0334375,
+    "hash": "582d67877adff5e121022ec43e03ff28"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\components\\OAuthButton.tsx": {
+    "mtime": 1775499925.1544375,
+    "hash": "0bdf4e9d6e3f346c193884c10ce3316a"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\hooks\\useAuth.ts": {
+    "mtime": 1775496621.2636507,
+    "hash": "3eedda931b4ad039f7f2747a2df4b877"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\pages\\LoginPage.tsx": {
+    "mtime": 1776711373.7760727,
+    "hash": "db468c7803b26b9c8f79bf2ebed97dfe"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\providers\\AuthProvider.tsx": {
+    "mtime": 1776708529.5299697,
+    "hash": "15abf742965973be8762861adc2a328f"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\auth\\server\\session.ts": {
+    "mtime": 1776708529.5311472,
+    "hash": "5fb4cde5e887eafe5c0b96d697f3f76e"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\api\\github.api.ts": {
+    "mtime": 1777928695.4056842,
+    "hash": "21978055002e7d4dff36ee3fb7852b02"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\components\\ConnectGithubCard.tsx": {
+    "mtime": 1777928695.406334,
+    "hash": "cf3b1269f818e80d9430fdc183c37e47"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\components\\ConnectingState.tsx": {
+    "mtime": 1777928695.4071126,
+    "hash": "284826a4b294735572db3751d4475915"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\components\\EmptyDashboard.tsx": {
+    "mtime": 1778093256.7787037,
+    "hash": "d1e1b4925434c5814ed1ab5afd43a299"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\components\\RepoSelectionTable.tsx": {
+    "mtime": 1777928695.4077902,
+    "hash": "c1a65815cda5d273d548873f9b91b80a"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\components\\UnlinkConfirmDialog.tsx": {
+    "mtime": 1777928695.4077902,
+    "hash": "d7c5a0f33659c386d9fb49e57956ee4a"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\hooks\\useGithub.ts": {
+    "mtime": 1777928695.4090304,
+    "hash": "989199a236bad9e8338049d2a0bc5c38"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\store\\github.store.ts": {
+    "mtime": 1777714682.2188208,
+    "hash": "964f98734ef75223869050721cbf61a8"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\github\\types\\github.types.ts": {
+    "mtime": 1777928695.410242,
+    "hash": "54a22fe6f851fc6175c8682e96852a38"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Cta.tsx": {
+    "mtime": 1775499869.8685515,
+    "hash": "d231239ced33036b2ab413ae5bb25b24"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Features.tsx": {
+    "mtime": 1775499869.8644683,
+    "hash": "254d8ed28b2aa6532960a5070236bbb0"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Footer.tsx": {
+    "mtime": 1775499869.8696291,
+    "hash": "8d180f64463ed7e4da95ae9962b96efe"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Hero.tsx": {
+    "mtime": 1775499869.8634677,
+    "hash": "338ca8263b9ba456fb41a786a2674f6f"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\index.ts": {
+    "mtime": 1775369887.1782334,
+    "hash": "6686d1c8b41dc377f0afe6a0f83c78f3"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Metrics.tsx": {
+    "mtime": 1775499869.8654745,
+    "hash": "64c6f4476aa9bf38e17f4d7d7c30a3fa"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Personas.tsx": {
+    "mtime": 1775499869.8664713,
+    "hash": "4d2bc23dc82e6274e8c022b277b080da"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Workflow.tsx": {
+    "mtime": 1775499869.8664713,
+    "hash": "01df37d3f1c039a451e63f8cd8fdf871"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Navbar\\Navbar.tsx": {
+    "mtime": 1775499741.1694965,
+    "hash": "7210daafe8a44f053ef02f492af89d89"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\components\\Navbar\\NavbarClient.tsx": {
+    "mtime": 1776277062.991914,
+    "hash": "e11103b292215f0925e2dee12e0f26be"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\landing\\pages\\LandingPage.tsx": {
+    "mtime": 1775499741.168238,
+    "hash": "c0d394ae83ea82234983b15c0c00f9f7"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\theme\\utils.ts": {
+    "mtime": 1775499402.4319897,
+    "hash": "a3c79753b3a04e2acc8f0f4fbd436678"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\theme\\components\\ThemeToggle.tsx": {
+    "mtime": 1775499975.3347578,
+    "hash": "58de1ed5ec08771ba59ec1c70d77375d"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\theme\\hooks\\useTheme.ts": {
+    "mtime": 1775499402.433002,
+    "hash": "f25d9c6720cf5257dcac1b5374ae8184"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\modules\\theme\\providers\\ThemeProvider.tsx": {
+    "mtime": 1775500110.1182458,
+    "hash": "a252cf98ff5181ce4021939028283830"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\store\\index.ts": {
+    "mtime": 1775365495.184506,
+    "hash": "954d4d8ae494bd84bf997fb7d2bb640a"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\src\\types\\index.ts": {
+    "mtime": 1775496621.2636507,
+    "hash": "e27af13de5858084f67767af4dccaef4"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\AGENTS.md": {
+    "mtime": 1775329304.2469068,
+    "hash": "9e09241799026ac05be315a2f0b50055"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\CLAUDE.md": {
+    "mtime": 1775329304.2469068,
+    "hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\README.md": {
+    "mtime": 1775329214.9586568,
+    "hash": "f15aaa42d5d299d091b1171097ea56ad"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\public\\file.svg": {
+    "mtime": 1775329215.0230584,
+    "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\public\\globe.svg": {
+    "mtime": 1775329215.044745,
+    "hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\public\\next.svg": {
+    "mtime": 1775329215.0602098,
+    "hash": "8e061864f388b47f33a1c3780831193e"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\public\\vercel.svg": {
+    "mtime": 1775329215.070503,
+    "hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "D:\\WebFrontend\\codesense-frontend\\public\\window.svg": {
+    "mtime": 1775329215.0853708,
+    "hash": "a2760511c65806022ad20adf74370ff3"
+  }
+}
