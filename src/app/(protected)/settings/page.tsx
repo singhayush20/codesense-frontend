@@ -8,7 +8,7 @@ import { UnlinkConfirmDialog } from "@/modules/github/components/UnlinkConfirmDi
 import { useGithub } from "@/modules/github/hooks/useGithub";
 import { LLMProviderTab } from "@/modules/llm/components/LLMProviderTab";
 
-type TabType = "github" | "llm" | "profile";
+type TabType = "github" | "llm";
 
 export default function SettingsPage() {
   const hasRequestedAccounts = useRef(false);
@@ -72,7 +72,7 @@ export default function SettingsPage() {
   const tabs: Array<{ id: TabType; label: string }> = [
     { id: "github", label: "Github Account" },
     { id: "llm", label: "LLM Provider Settings" },
-    { id: "profile", label: "Profile" },
+
   ];
 
   return (
@@ -193,16 +193,7 @@ export default function SettingsPage() {
           <LLMProviderTab />
         )}
 
-        {/* Profile Tab */}
-        {activeTab === "profile" && (
-          <Card className="rounded-2xl hover:translate-y-0">
-            <div className="flex items-center justify-center py-12">
-              <p className="text-muted-foreground">
-                Profile settings coming soon...
-              </p>
-            </div>
-          </Card>
-        )}
+
       </section>
 
       <UnlinkConfirmDialog

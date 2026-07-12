@@ -2,11 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { ConnectingState } from "@/modules/github/components/ConnectingState";
 import { ConnectGithubCard } from "@/modules/github/components/ConnectGithubCard";
-import { EmptyDashboard } from "@/modules/github/components/EmptyDashboard";
+import { DashboardStats } from "@/modules/dashboard/components/DashboardStats";
 import { useGithub } from "@/modules/github/hooks/useGithub";
 
 function getValidInstallationId(value: string | null): string | null {
@@ -16,7 +14,7 @@ function getValidInstallationId(value: string | null): string | null {
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const hasRequestedAccounts = useRef(false);
-  const { accounts, error, hasLoadedAccounts, isLoadingAccounts, loadAccounts } = useGithub();
+  const { accounts, hasLoadedAccounts, isLoadingAccounts, loadAccounts } = useGithub();
   const installationId = getValidInstallationId(searchParams.get("installation_id"));
   const code = searchParams.get("code");
   const state = searchParams.get("state");
@@ -58,17 +56,5 @@ export default function DashboardPage() {
     );
   }
 
-  return (
-    <>
-      {error ? (
-        <Card className="mx-auto mb-6 flex w-full max-w-5xl items-center justify-between gap-4 rounded-2xl p-4 hover:translate-y-0">
-          <p className="text-sm text-muted-foreground">{error}</p>
-          <Button type="button" variant="outline" onClick={() => void loadAccounts()}>
-            Retry
-          </Button>
-        </Card>
-      ) : null}
-      <EmptyDashboard />
-    </>
-  );
+  return <DashboardStats />;
 }
