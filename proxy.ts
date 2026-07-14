@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { routes } from "./src/config/routes";
-import { AUTH_TOKEN_COOKIE_NAME } from "./src/modules/auth/utils";
-
+import { routes } from "@/config/routes";
+import { AUTH_TOKEN_COOKIE_NAME } from "@/modules/auth/utils";
 
 export function proxy(request: NextRequest) {
   const authToken = request.cookies.get(AUTH_TOKEN_COOKIE_NAME)?.value;
