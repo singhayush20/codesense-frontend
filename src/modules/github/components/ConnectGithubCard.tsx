@@ -27,31 +27,31 @@ export function ConnectGithubCard() {
   const { connectGithub, error, isConnecting } = useGithub();
 
   return (
-    <Card className="mx-auto w-full max-w-xl rounded-3xl border-white/10 bg-[#1d2944] p-8 text-white shadow-[0_28px_90px_-42px_rgba(0,0,0,0.65)] hover:translate-y-0 hover:bg-[#1d2944] dark:bg-[#1d2944] sm:p-10">
-      <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-white/12 text-white shadow-[0_18px_50px_-24px_rgba(147,160,255,0.95)]">
+    <Card className="mx-auto w-full max-w-xl rounded-3xl p-8 dark:border-white/10 dark:bg-[#1d2944] dark:text-white dark:shadow-[0_28px_90px_-42px_rgba(0,0,0,0.65)] sm:p-10">
+      <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary shadow-[var(--shadow-accent)] dark:bg-white/12 dark:text-white dark:shadow-[0_18px_50px_-24px_rgba(147,160,255,0.95)]">
         <GitBranch className="size-8" aria-hidden="true" />
       </div>
 
       <div className="mt-6 text-center">
         <h1 className="text-3xl font-semibold tracking-tight">Connect GitHub</h1>
-        <p className="mx-auto mt-4 max-w-md text-sm font-medium leading-6 text-slate-300">
+        <p className="mx-auto mt-4 max-w-md text-sm font-medium leading-6 text-muted-foreground dark:text-slate-300">
           Authorize your GitHub account and install the CodeSense App to securely access your repositories and analyze pull requests with deep architectural insight.
         </p>
       </div>
 
-      <div className="mt-8 rounded-lg bg-[#111b34] p-5">
+      <div className="mt-8 rounded-lg bg-muted p-5 dark:bg-[#111b34]">
         {benefits.map((benefit, index) => {
           const Icon = benefit.icon;
 
           return (
             <div
               key={benefit.title}
-              className="flex gap-4 border-slate-700/60 py-4 first:pt-0 last:pb-0 [&:not(:last-child)]:border-b"
+              className="flex gap-4 border-border py-4 first:pt-0 last:pb-0 dark:border-slate-700/60 [&:not(:last-child)]:border-b"
             >
-              <Icon className="mt-0.5 size-5 shrink-0 text-emerald-300" aria-hidden="true" />
+              <Icon className="mt-0.5 size-5 shrink-0 text-emerald-500 dark:text-emerald-300" aria-hidden="true" />
               <div>
-                <p className="text-sm font-semibold text-white">{benefit.title}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-400">{benefit.description}</p>
+                <p className="text-sm font-semibold text-foreground dark:text-white">{benefit.title}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground dark:text-slate-400">{benefit.description}</p>
               </div>
               <span className="sr-only">Benefit {index + 1}</span>
             </div>
@@ -60,7 +60,7 @@ export function ConnectGithubCard() {
       </div>
 
       {error ? (
-        <p role="alert" className="mt-5 text-center text-sm font-medium text-rose-200">
+        <p role="alert" className="mt-5 text-center text-sm font-medium text-destructive/80 dark:text-rose-200">
           {error}
         </p>
       ) : null}
@@ -76,9 +76,6 @@ export function ConnectGithubCard() {
           <GitBranch className="size-4" aria-hidden="true" />
           {isConnecting ? "Connecting..." : "Connect GitHub"}
         </Button>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
-          Enterprise grade security protocols active
-        </p>
       </div>
     </Card>
   );
