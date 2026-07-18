@@ -13,7 +13,12 @@ const DISALLOWED_REQUEST_HEADERS = new Set([
   "cookie",
   "host",
 ]);
-const DISALLOWED_RESPONSE_HEADERS = new Set(["set-cookie"]);
+const DISALLOWED_RESPONSE_HEADERS = new Set([
+  "content-encoding",
+  "content-length",
+  "set-cookie",
+  "transfer-encoding",
+]);
 
 interface BackendProxyRouteContext {
   params: Promise<{
