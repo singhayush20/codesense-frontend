@@ -24,35 +24,59 @@ interface BackendProxyRouteContext {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest, context: BackendProxyRouteContext) {
+export async function GET(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-export async function POST(request: NextRequest, context: BackendProxyRouteContext) {
+export async function POST(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-export async function PUT(request: NextRequest, context: BackendProxyRouteContext) {
+export async function PUT(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-export async function PATCH(request: NextRequest, context: BackendProxyRouteContext) {
+export async function PATCH(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-export async function DELETE(request: NextRequest, context: BackendProxyRouteContext) {
+export async function DELETE(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-export async function HEAD(request: NextRequest, context: BackendProxyRouteContext) {
+export async function HEAD(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-export async function OPTIONS(request: NextRequest, context: BackendProxyRouteContext) {
+export async function OPTIONS(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   return handleBackendProxy(request, context);
 }
 
-async function handleBackendProxy(request: NextRequest, context: BackendProxyRouteContext) {
+async function handleBackendProxy(
+  request: NextRequest,
+  context: BackendProxyRouteContext,
+) {
   try {
     const { apiUrl } = getAuthEnv();
     const { backendPath } = await context.params;
@@ -61,7 +85,9 @@ async function handleBackendProxy(request: NextRequest, context: BackendProxyRou
       request.headers,
       getBackendAuthCookieHeader(request),
     );
-    const body = BODYLESS_METHODS.has(request.method) ? undefined : await request.arrayBuffer();
+    const body = BODYLESS_METHODS.has(request.method)
+      ? undefined
+      : await request.arrayBuffer();
 
     backendUrl.search = request.nextUrl.search;
 
@@ -76,11 +102,14 @@ async function handleBackendProxy(request: NextRequest, context: BackendProxyRou
     const responseHeaders = getForwardResponseHeaders(response.headers);
     appendSetCookieHeaders(responseHeaders, response.headers);
 
-    return new Response(response.body, {
+    const text = await response.text();
+
+    return new Response(text, {
       status: response.status,
       headers: responseHeaders,
     });
-  } catch {
+  } catch (error) {
+    console.error("Error occurred while proxying request:", error);
     return Response.json(
       {
         message: "Unable to reach the backend API.",
