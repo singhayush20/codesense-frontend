@@ -4,16 +4,24 @@ AI-powered code review for GitHub pull requests. Connect your repositories, conf
 
 ## Features
 
-- **Google OAuth** — sign in with your Google account
-- **GitHub integration** — OAuth + GitHub App installation to access repositories
-- **Repository management** — browse, select, and deselect repos for review
-- **Pull request reviews** — automated AI review triggered on new PRs
-- **Diff viewer** — side-by-side file changes with inline review comments
-- **Multiple LLM providers** — Gemini, OpenAI, Anthropic, Ollama, AWS Bedrock, Nvidia
-- **Per-repo LLM config** — assign a provider + model to each repository
-- **Review workflow tracking** — step-by-step status for each review run
-- **Dark mode** — system-aware theme with manual toggle
-- **Dashboard** — overview of recent reviews and repository activity
+![LLM Providers](Images/llm-providers.png)
+Add and use **multiple LLM providers** for code review. Add one or more keys which are then stored securely.
+
+![Dashboard](Images/dashboard.png)
+View the statistics for your account- **total reviews, status, tokens consumed, and more**
+
+![Pull Requests](Images/pull-requests.png)
+View synced pull requests from your **GitHub repositories**
+
+![AI Review comments](Images/ai-review-comments.png)
+Checkout the **AI-generated** review comments and suggestions directly in the PR details
+
+![Workflow](Images/workflow.png)
+Check workflow status in real-time with **status badges** and a **workflow timeline**
+
+![Model config](Images/model-config.png)
+Configure the **LLM model** for each repository
+
 
 ## Tech Stack
 
