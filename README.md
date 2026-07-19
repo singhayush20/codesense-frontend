@@ -1,19 +1,27 @@
 # CodeSense
 
-AI-powered code review for GitHub pull requests. Connect your repositories, configure an LLM provider (Gemini, OpenAI, Anthropic, Ollama, AWS Bedrock, Nvidia), and get automated reviews on every PR.
+AI-powered code review for GitHub pull requests. Connect your repositories, configure an LLM provider, and get automated reviews on every PR.
 
 ## Features
 
-- **Google OAuth** — sign in with your Google account
-- **GitHub integration** — OAuth + GitHub App installation to access repositories
-- **Repository management** — browse, select, and deselect repos for review
-- **Pull request reviews** — automated AI review triggered on new PRs
-- **Diff viewer** — side-by-side file changes with inline review comments
-- **Multiple LLM providers** — Gemini, OpenAI, Anthropic, Ollama, AWS Bedrock, Nvidia
-- **Per-repo LLM config** — assign a provider + model to each repository
-- **Review workflow tracking** — step-by-step status for each review run
-- **Dark mode** — system-aware theme with manual toggle
-- **Dashboard** — overview of recent reviews and repository activity
+![LLM Providers](Images/llm-providers.png)
+Add and use **multiple LLM providers** for code review. Add one or more keys which are then stored securely.
+
+![Dashboard](Images/dashboard.png)
+View the statistics for your account- **total reviews, status, tokens consumed, and more**
+
+![Pull Requests](Images/pull-requests.png)
+View synced pull requests from your **GitHub repositories**
+
+![AI Review comments](Images/ai-review-comments.png)
+Checkout the **AI-generated** review comments and suggestions directly in the PR details
+
+![Workflow](Images/workflow.png)
+Check workflow status in real-time with **status badges** and a **workflow timeline**
+
+![Model config](Images/model-config.png)
+Configure the **LLM model** for each repository
+
 
 ## Tech Stack
 
@@ -69,22 +77,31 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 src/
-  app/                  # Next.js App Router (pages, layouts, API routes)
-    (auth)/             # Login pages
-    (protected)/        # Authenticated pages (dashboard, repos, settings, profile)
-    (public)/           # Landing page
-    api/backend/        # Reverse proxy to backend API
-  modules/
-    app-shell/          # Header, Sidebar, layout shell
-    auth/               # AuthProvider, OAuth flow, server session helpers
-    github/             # GitHub API client, hooks, components (repo table, PR details, diff)
-    landing/            # Landing page sections
-    llm/                # LLM provider management, API client, AddKeyDialog
-    theme/              # ThemeProvider, dark mode toggle
-  lib/                  # api.ts (fetch wrapper), utils.ts (cn), constants
-  config/               # env.ts, routes.ts, site.ts
-  types/                # Global TypeScript types
-  styles/               # globals.css
+├── app/                        # Next.js App Router (pages, layouts, API routes)
+│   ├── (auth)/                 # Login pages
+│   ├── (protected)/            # Authenticated pages (dashboard, repos, settings, profile)
+│   ├── (public)/               # Landing page
+│   ├── api/
+│   │   └── backend/            # Reverse proxy to backend API
+│   └── auth/                   # Auth API routes (Google OAuth, logout, refresh)
+├── components/
+│   ├── review-workflow/        # Review workflow UI components
+│   └── ui/                     # shadcn/ui primitives (Button, Card, Input, Badge, Table)
+├── config/                     # env.ts, routes.ts, site.ts
+├── hooks/                      # Shared React hooks (useInView, etc.)
+├── lib/                        # api.ts (fetch wrapper), utils.ts (cn), constants
+├── modules/
+│   ├── app-shell/              # Header, Sidebar, ProtectedLayoutShell
+│   ├── auth/                   # AuthProvider, OAuth flow, server session helpers
+│   ├── dashboard/              # Dashboard page sections, charts, stats
+│   ├── github/                 # GitHub API client, hooks, components (repo table, PR details, diff)
+│   ├── landing/                # Landing page sections (Hero, Features, Metrics)
+│   ├── llm/                    # LLM provider management, API client, AddKeyDialog
+│   └── theme/                  # ThemeProvider, ThemeToggle
+├── store/                      # (unused)
+├── styles/                     # globals.css
+├── types/                      # Global TypeScript types
+└── utils/                      # formatDuration, workflowMerge
 ```
 
 ## Dependencies

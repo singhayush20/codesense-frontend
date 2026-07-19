@@ -1,5 +1,9 @@
+"use client";
+
 import { Container } from "@/components/ui/Container";
 import { SectionWrapper } from "@/components/ui/SectionWrapper";
+import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/utils";
 import {
   Ban,
   Lock,
@@ -49,11 +53,16 @@ const reasons = [
 ];
 
 export default function WhyCodeSense() {
+  const { ref, isVisible } = useInView();
+
   return (
     <SectionWrapper id="why-codesense" className="border-t border-border/70 relative overflow-hidden">
-      <div className="pointer-events-none absolute -left-40 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-[var(--color-accent-soft)] blur-3xl opacity-30" />
-      <Container className="space-y-12">
-        <div className="max-w-3xl">
+      <div className="pointer-events-none absolute -left-40 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-[var(--color-accent-soft)] blur-3xl opacity-30 animate-glow-pulse" style={{ animationDelay: "2s" }} />
+      <Container className="space-y-12" ref={ref}>
+        <div className={cn(
+          "max-w-3xl transition-all duration-700",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
           <p className="text-sm uppercase tracking-[0.3em] text-primary">Why CodeSense</p>
           <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Built for teams that care about quality
@@ -64,16 +73,20 @@ export default function WhyCodeSense() {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {reasons.map((reason) => (
+          {reasons.map((reason, index) => (
             <div
               key={reason.title}
-              className="group rounded-3xl border border-border/70 bg-card/75 p-6 shadow-[var(--shadow-surface)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[var(--color-border-strong)] hover:bg-card/95"
+              className={cn(
+                "group rounded-3xl border border-border/70 bg-card/75 p-6 shadow-[var(--shadow-surface)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-border-strong)] hover:bg-card/95 hover:shadow-[0_0_40px_-16px_var(--color-accent-soft)]",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+              )}
+              style={{ transitionDelay: isVisible ? `${200 + index * 100}ms` : "0ms" }}
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted ring-1 ring-border/70">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted ring-1 ring-border/70 transition-all duration-300 group-hover:ring-[var(--color-accent-soft)] group-hover:shadow-[0_0_20px_-8px_var(--color-accent-soft)]">
                 {reason.icon}
               </div>
               <div className="mt-5 space-y-2">
-                <h3 className="text-lg font-semibold text-foreground">{reason.title}</h3>
+                <h3 className="text-lg font-semibold text-foreground transition-colors duration-300 group-hover:text-primary">{reason.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{reason.description}</p>
               </div>
             </div>
