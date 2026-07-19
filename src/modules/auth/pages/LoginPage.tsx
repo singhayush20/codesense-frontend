@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { routes } from "@/config/routes";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { LoginCard } from "../components/LoginCard";
-import { AuthPageFooter } from "../components/AuthPageFooter";
 
 interface LoginPageProps {
   oauthErrorMessage?: string | null;
@@ -69,10 +68,7 @@ export function LoginPage({
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--color-accent-soft),transparent_20%),radial-gradient(circle_at_bottom_right,var(--color-accent-soft),transparent_22%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(var(--color-grid-line)_1px,transparent_1px),linear-gradient(90deg,var(--color-grid-line)_1px,transparent_1px)] bg-[length:64px_64px] opacity-70" />
-
-      <div className="relative z-10 flex flex-1 items-center justify-center px-6 py-12">
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-2xl">
           <LoginCard
             activeAction={activeAction}
@@ -83,7 +79,6 @@ export function LoginPage({
         </div>
       </div>
 
-      <AuthPageFooter />
     </div>
   );
 }

@@ -1,7 +1,11 @@
+"use client";
+
 import { Cpu, GitBranch, MessageSquareCode, Sliders } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { SectionWrapper } from "@/components/ui/SectionWrapper";
+import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/utils";
 
 const features = [
   {
@@ -27,11 +31,16 @@ const features = [
 ];
 
 export default function Features() {
+  const { ref, isVisible } = useInView();
+
   return (
     <SectionWrapper id="features" className="border-t border-border/70 relative">
-      <div className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-[var(--color-accent-soft)] blur-3xl opacity-30" />
-      <Container className="space-y-10">
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
+      <div className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-[var(--color-accent-soft)] blur-3xl opacity-30 animate-glow-pulse" />
+      <Container className="space-y-10" ref={ref}>
+        <div className={cn(
+          "grid gap-8 lg:grid-cols-2 lg:items-end transition-all duration-700",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
           <div className="max-w-xl">
             <p className="text-sm uppercase tracking-[0.3em] text-primary">Core Capabilities</p>
             <h2 className="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
@@ -49,15 +58,22 @@ export default function Features() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {features.map((feature) => (
-            <Card key={feature.title} className="group relative overflow-hidden transition">
-              <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-accent),var(--color-accent-strong),var(--color-success))] opacity-80" />
+          {features.map((feature, index) => (
+            <Card
+              key={feature.title}
+              className={cn(
+                "group relative overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_40px_-16px_var(--color-accent-soft)] hover:border-[var(--color-border-strong)]",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+              )}
+              style={{ transitionDelay: isVisible ? `${300 + index * 150}ms` : "0ms" }}
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-accent),var(--color-accent-strong),var(--color-success))] opacity-80 transition-all duration-500 group-hover:h-1.5" />
               <div className="relative space-y-5 pt-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted shadow-[var(--shadow-surface)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted shadow-[var(--shadow-surface)] transition-all duration-300 group-hover:shadow-[0_0_20px_-8px_var(--color-accent-soft)] group-hover:bg-accent">
                   {feature.icon}
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold text-foreground transition-colors duration-300 group-hover:text-primary">{feature.title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
                 </div>
               </div>
