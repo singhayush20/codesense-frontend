@@ -1,6 +1,6 @@
 # CodeSense
 
-AI-powered code review for GitHub pull requests. Connect your repositories, configure an LLM provider (Gemini, OpenAI, Anthropic, Ollama, AWS Bedrock, Nvidia), and get automated reviews on every PR.
+AI-powered code review for GitHub pull requests. Connect your repositories, configure an LLM provider, and get automated reviews on every PR.
 
 ## Features
 
@@ -77,22 +77,31 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 src/
-  app/                  # Next.js App Router (pages, layouts, API routes)
-    (auth)/             # Login pages
-    (protected)/        # Authenticated pages (dashboard, repos, settings, profile)
-    (public)/           # Landing page
-    api/backend/        # Reverse proxy to backend API
-  modules/
-    app-shell/          # Header, Sidebar, layout shell
-    auth/               # AuthProvider, OAuth flow, server session helpers
-    github/             # GitHub API client, hooks, components (repo table, PR details, diff)
-    landing/            # Landing page sections
-    llm/                # LLM provider management, API client, AddKeyDialog
-    theme/              # ThemeProvider, dark mode toggle
-  lib/                  # api.ts (fetch wrapper), utils.ts (cn), constants
-  config/               # env.ts, routes.ts, site.ts
-  types/                # Global TypeScript types
-  styles/               # globals.css
+├── app/                        # Next.js App Router (pages, layouts, API routes)
+│   ├── (auth)/                 # Login pages
+│   ├── (protected)/            # Authenticated pages (dashboard, repos, settings, profile)
+│   ├── (public)/               # Landing page
+│   ├── api/
+│   │   └── backend/            # Reverse proxy to backend API
+│   └── auth/                   # Auth API routes (Google OAuth, logout, refresh)
+├── components/
+│   ├── review-workflow/        # Review workflow UI components
+│   └── ui/                     # shadcn/ui primitives (Button, Card, Input, Badge, Table)
+├── config/                     # env.ts, routes.ts, site.ts
+├── hooks/                      # Shared React hooks (useInView, etc.)
+├── lib/                        # api.ts (fetch wrapper), utils.ts (cn), constants
+├── modules/
+│   ├── app-shell/              # Header, Sidebar, ProtectedLayoutShell
+│   ├── auth/                   # AuthProvider, OAuth flow, server session helpers
+│   ├── dashboard/              # Dashboard page sections, charts, stats
+│   ├── github/                 # GitHub API client, hooks, components (repo table, PR details, diff)
+│   ├── landing/                # Landing page sections (Hero, Features, Metrics)
+│   ├── llm/                    # LLM provider management, API client, AddKeyDialog
+│   └── theme/                  # ThemeProvider, ThemeToggle
+├── store/                      # (unused)
+├── styles/                     # globals.css
+├── types/                      # Global TypeScript types
+└── utils/                      # formatDuration, workflowMerge
 ```
 
 ## Dependencies
