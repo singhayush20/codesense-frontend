@@ -16,28 +16,24 @@ const AVAILABLE_PROVIDERS: AvailableProviderInfo[] = [
     name: "Ollama",
     description: "Run powerful large language models locally with a simple, unified interface.",
     icon: "🏠",
-    category: "LOCAL ENGINE",
   },
   {
     id: ProviderType.GEMINI,
     name: "Gemini",
     description: "Google's most capable AI model for highly complex multi-modal tasks.",
     icon: "✨",
-    category: "CLOUD API",
   },
   {
     id: ProviderType.BEDROCK,
     name: "AWS Bedrock",
     description: "Build generative AI applications on AWS with foundational models via API.",
     icon: "📦",
-    category: "ENTERPRISE",
   },
   {
     id: ProviderType.NVIDIA,
     name: "Nvidia",
     description: "Optimized LLM inference endpoints utilizing Nvidia's massive GPU clusters.",
     icon: "⚡",
-    category: "GPU NATIVE",
   },
 ];
 
@@ -78,11 +74,6 @@ export function AvailableProviders({
                       {provider.description}
                     </p>
                   </div>
-                </div>
-                <div className="mt-4 pt-3 border-t border-border/50">
-                  <p className="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
-                    {provider.category}
-                  </p>
                 </div>
               </div>
 

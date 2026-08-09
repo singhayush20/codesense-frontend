@@ -47,5 +47,4 @@ export interface AvailableProviderInfo {
   name: string;
   description: string;
   icon: string;
-  category: string;
 }

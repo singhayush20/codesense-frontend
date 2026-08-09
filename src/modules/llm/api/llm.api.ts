@@ -70,7 +70,7 @@ export const llmApi = {
     );
   },
 
-  async addCredentials(providerId: string, apiKey: string, baseUrl?: string): Promise<{ success: boolean }> {
+  async addCredentials(providerId: string, apiKey: string, baseUrl?: string, region?: string): Promise<{ success: boolean }> {
     const response = await apiFetch(`${LLM_API_BASE}/providers/${providerId}/credentials`, {
       method: "POST",
       headers: {
@@ -80,6 +80,7 @@ export const llmApi = {
         config: {
           apiKey,
           ...(baseUrl ? { baseUrl } : {}),
+          ...(region ? { region } : {}),
         },
       }),
     });
