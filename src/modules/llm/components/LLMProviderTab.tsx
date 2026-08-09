@@ -49,10 +49,10 @@ export function LLMProviderTab() {
     }
   };
 
-  const handleAddKeySubmit = async (displayName: string, apiKey: string, baseUrl?: string) => {
+  const handleAddKeySubmit = async (displayName: string, apiKey: string, baseUrl?: string, region?: string) => {
     if (!selectedProvider) return;
 
-    const success = await addProvider(selectedProvider, displayName, apiKey, baseUrl);
+    const success = await addProvider(selectedProvider, displayName, apiKey, baseUrl, region);
 
     if (success) {
       setSelectedProvider(null);

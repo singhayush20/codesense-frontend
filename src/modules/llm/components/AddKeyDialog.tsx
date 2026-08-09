@@ -10,7 +10,7 @@ import { ProviderType } from "@/modules/llm/types/llm.types";
 interface AddKeyDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (displayName: string, apiKey: string, baseUrl?: string) => Promise<void>;
+  onSubmit: (displayName: string, apiKey: string, baseUrl?: string, region?: string) => Promise<void>;
   providerName: string;
   providerType?: ProviderType;
   isLoading: boolean;
@@ -28,10 +28,12 @@ export function AddKeyDialog({
   const [displayName, setDisplayName] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
+  const [region, setRegion] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isOllama = providerType === ProviderType.OLLAMA || providerName.toLowerCase() === "ollama";
+  const isBedrock = providerType === ProviderType.BEDROCK || providerName.toLowerCase().includes("bedrock");
 
   const handleNext = () => {
     if (step === "name" && displayName.trim()) {
@@ -42,19 +44,27 @@ export function AddKeyDialog({
   const handleSubmit = async () => {
     if (!displayName.trim()) return;
 
-    // Validation logic: Ollama needs Base URL, others need API Key
+    // Validation logic: Ollama needs Base URL, Bedrock needs region, others need API Key
     if (isOllama) {
       if (!baseUrl.trim()) return;
+    } else if (isBedrock) {
+      if (!region.trim() || !apiKey.trim()) return;
     } else {
       if (!apiKey.trim()) return;
     }
 
     setIsSubmitting(true);
     try {
-      await onSubmit(displayName, apiKey.trim(), isOllama ? baseUrl.trim() : undefined);
+      await onSubmit(
+        displayName,
+        apiKey.trim(),
+        isOllama ? baseUrl.trim() : undefined,
+        isBedrock ? region.trim() : undefined,
+      );
       setDisplayName("");
       setApiKey("");
       setBaseUrl("");
+      setRegion("");
       setShowKey(false);
       setStep("name");
       onClose();
@@ -71,6 +81,7 @@ export function AddKeyDialog({
     setDisplayName("");
     setApiKey("");
     setBaseUrl("");
+    setRegion("");
     setShowKey(false);
     setStep("name");
     onClose();
@@ -102,7 +113,9 @@ export function AddKeyDialog({
                 ? "Give this configuration a memorable name"
                 : isOllama 
                   ? "Enter your API key and Base URL"
-                  : "Enter your API key"}
+                  : isBedrock
+                    ? "Enter your API key and AWS region"
+                    : "Enter your API key"}
             </p>
           </div>
 
@@ -158,6 +171,8 @@ export function AddKeyDialog({
                         if (e.key === "Enter") {
                           if (isOllama) {
                             if (baseUrl.trim()) handleSubmit();
+                          } else if (isBedrock) {
+                            if (region.trim()) handleSubmit();
                           } else if (apiKey.trim()) {
                             handleSubmit();
                           }
@@ -201,6 +216,28 @@ export function AddKeyDialog({
                     </p>
                   </div>
                 )}
+
+                {/* Region Input (Bedrock only) */}
+                {isBedrock && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">AWS Region</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g., us-east-1, us-west-2, eu-west-1"
+                      value={region}
+                      onChange={(e) => setRegion(e.target.value)}
+                      disabled={isSubmitting}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && region.trim()) {
+                          handleSubmit();
+                        }
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      The AWS region where the Bedrock model is hosted.
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -235,7 +272,9 @@ export function AddKeyDialog({
                   ? !displayName.trim() || isLoading
                   : isOllama
                     ? !baseUrl.trim() || isLoading || isSubmitting
-                    : !apiKey.trim() || isLoading || isSubmitting
+                    : isBedrock
+                      ? !apiKey.trim() || !region.trim() || isLoading || isSubmitting
+                      : !apiKey.trim() || isLoading || isSubmitting
               }
             >
               {step === "name" 

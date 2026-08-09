@@ -43,6 +43,7 @@ export function useLLM() {
       displayName: string,
       apiKey: string,
       baseUrl?: string,
+      region?: string,
     ): Promise<boolean> => {
       setIsAddingProvider(true);
       setError(null);
@@ -55,7 +56,7 @@ export function useLLM() {
         });
 
         // Step 2: Add credentials
-        await llmApi.addCredentials(provider.id, apiKey, baseUrl);
+        await llmApi.addCredentials(provider.id, apiKey, baseUrl, region);
 
         // Reload providers
         await loadProviders();
